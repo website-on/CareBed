@@ -162,31 +162,42 @@
 
             <!-- View: Home Welcome & Search (For Guest/Normal Users) -->
             <div id="view-home" class="app-view active-view">
-                <div class="welcome-container box mb-4">
-                    <div class="welcome-text">
-                        <h1>مرحباً بك في CareBed</h1>
-                        <p>نظام ذكي وشامل لمراقبة أسرة العناية المركزة،حديثي الولادة، وبنوك الدم عبر شبكة المستشفيات.
-                        </p>
-                        <p class="text-secondary mt-2" style="font-size: 14px;">للبحث عن سرير متاح أو بنك دم، استخدم
-                            محرك البحث الذكي بالأسفل.</p>
+                <div class="welcome-container mb-5">
+                    <div class="welcome-content">
+                        <div class="welcome-badge">الإصدار 2.0</div>
+                        <h1 class="welcome-heading">نظام ذكي وشامل لمراقبة <br><span class="text-gradient">الرعاية
+                                الصحية</span></h1>
+                        <p class="welcome-description">منصة مركزية متطورة لمتابعة توافر أسرة العناية المركزة، وحديثي
+                            الولادة، ومخزون بنوك الدم في شبكة المستشفيات بصورة لحظية.</p>
+                        <div class="welcome-features">
+                            <div class="feature-tag"><i class='bx bx-shield-quarter'></i> <span>دقة البيانات</span>
+                            </div>
+                            <div class="feature-tag"><i class='bx bx-bolt-circle'></i> <span>استجابة فورية</span></div>
+                            <div class="feature-tag"><i class='bx bx-line-chart'></i> <span>تحليل ذكي</span></div>
+                        </div>
                     </div>
-                    <img src="https://cdn-icons-png.flaticon.com/512/3209/3209000.png" alt="CareBed Map"
-                        class="welcome-img">
                 </div>
 
-                <div class="box">
-                    <div class="title"><i class='bx bx-search-alt-2'></i> ابحث عن مستشفى في محيطك</div>
+                <div class="search-section box">
+                    <div class="title mb-4" style="font-size: 22px;"><i class='bx bx-search-alt-2 text-primary'></i>
+                        ابحث عن المستشفى المناسب</div>
                     <form id="public-search-form" class="search-form-grid">
                         <div class="form-group mb-0">
-                            <input type="text" id="search-name" placeholder="اسم المستشفى (اختياري)">
+                            <label><i class='bx bx-building'></i> اسم المستشفى</label>
+                            <input type="text" id="search-name" placeholder="مثال: مستشفى السلام (اختياري)">
                         </div>
                         <div class="form-group mb-0">
-                            <input type="text" id="search-gov" placeholder="المحافظة">
+                            <label><i class='bx bx-map-alt'></i> المحافظة</label>
+                            <input type="text" id="search-gov" placeholder="مثال: القاهرة">
                         </div>
                         <div class="form-group mb-0">
-                            <input type="text" id="search-city" placeholder="المدينة">
+                            <label><i class='bx bx-map'></i> المدينة</label>
+                            <input type="text" id="search-city" placeholder="الحي أو المدينة">
                         </div>
-                        <button type="submit" class="btn btn-primary"><i class='bx bx-search'></i> بحث</button>
+                        <div class="form-group mb-0 submit-group">
+                            <button type="submit" class="btn btn-primary search-btn"><i class='bx bx-search'></i>
+                                بحث</button>
+                        </div>
                     </form>
                 </div>
 
