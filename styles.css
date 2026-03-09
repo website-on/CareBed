@@ -970,72 +970,167 @@ body {
 }
 
 @media (max-width: 768px) {
-  .sidebar {
-    right: -260px;
-    width: 260px;
-    z-index: 1000;
-  }
 
+  /* Make the sidebar a horizontal scrollable top navigation */
+  .sidebar,
   .sidebar.close {
+    position: fixed;
+    top: 60px;
+    /* sits right below top-header */
     right: 0;
-    width: 260px;
-    padding-top: 20px;
+    width: 100% !important;
+    height: 60px;
+    padding: 0;
+    border-left: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 98;
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    transition: none;
+    /* Disable sliding transition */
   }
 
-  .sidebar .logo_name,
-  .sidebar .link_name {
-    display: inline-block;
+  /* Hide sidebar logo on mobile since we have one in header */
+  .sidebar .logo-details,
+  .sidebar.close .logo-details {
+    display: none;
   }
 
-  .sidebar.close .logo_name,
-  .sidebar.close .link_name {
-    display: inline-block;
-    opacity: 1;
-    pointer-events: auto;
+  /* Horizontal links container */
+  .sidebar .nav-links {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: max-content;
+    height: 100%;
+    margin: 0;
+    padding: 0 10px;
   }
 
+  .sidebar .nav-links li {
+    margin: 0 5px;
+  }
+
+  /* Link styling for horizontal scroll nav */
+  .sidebar .nav-links li a,
   .sidebar.close .nav-links li a {
-    justify-content: flex-start;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    border-radius: 30px;
+    /* Modern pill shape */
   }
 
-  .sidebar.close .logo-details i {
+  .sidebar .nav-links li a i,
+  .sidebar.close .nav-links li a i {
+    margin: 0 0 0 8px;
+    /* Margin to the left due to RTL */
+    min-width: unset;
+    font-size: 20px;
     text-align: right;
-    width: auto;
-    margin-left: 10px;
   }
 
+  .sidebar .nav-links li a .link_name,
+  .sidebar.close .nav-links li a .link_name {
+    display: inline-block !important;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  /* Top Header tweaks */
+  .top-header {
+    height: 60px;
+    padding: 0 15px;
+    background: var(--bg-secondary);
+  }
+
+  /* Hide sidebar toggle since nav is now always on top */
+  .sidebar-button i.sidebarBtn {
+    display: none;
+  }
+
+  .dashboard-title {
+    display: block;
+    font-size: 16px;
+    color: var(--color-primary);
+  }
+
+  .profile-details {
+    gap: 8px;
+  }
+
+  .admin_name {
+    display: none;
+    /* Save space on mobile */
+  }
+
+  .profile-details img {
+    height: 34px;
+    width: 34px;
+  }
+
+  /* Main content shifts below the new horizontal nav */
   .home-section,
   .home-section.expanded {
     width: 100%;
     right: 0;
+    padding-top: 0;
   }
 
   .home-content {
-    padding: 15px;
+    padding: 12px;
+    padding-top: 75px;
+    /* Allow space for the fixed horizontal nav below the header */
   }
 
-  .dashboard-title {
-    display: none;
-  }
-
+  /* UI Adjustments for full width and professional look */
   .welcome-container {
-    padding: 25px 20px;
+    padding: 25px 15px;
+    border-radius: var(--border-radius-md);
   }
 
   .welcome-heading {
-    font-size: 28px;
+    font-size: 26px;
   }
 
   .welcome-description {
     font-size: 15px;
+    margin-bottom: 20px;
   }
 
-  .search-form-grid {
+  .welcome-features {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .feature-tag {
+    justify-content: center;
+    padding: 10px;
+  }
+
+  /* All grids become single column full width */
+  .search-form-grid,
+  .overview-boxes,
+  .department-grid,
+  .admin-grid,
+  .hospital-list {
     grid-template-columns: 1fr;
+    gap: 15px;
   }
 
-  .search-btn {
+  .search-btn,
+  .btn {
     width: 100%;
+    height: 50px;
   }
 
   .form-group-row {
@@ -1047,13 +1142,28 @@ body {
     padding: 0;
   }
 
-  /* Make all inputs in modals full width on mobile */
-  .login-box {
-    padding: 20px;
-    margin: 15px;
+  .box {
+    padding: 20px 15px;
   }
 
-  .admin-grid {
-    grid-template-columns: 1fr;
+  .kpi-card {
+    padding: 20px;
+  }
+
+  .kpi-card .number {
+    font-size: 28px;
+  }
+
+  .kpi-card .icon {
+    height: 50px;
+    width: 50px;
+    font-size: 24px;
+  }
+
+  /* Modals full width */
+  .login-box {
+    padding: 20px 15px;
+    margin: 10px;
+    max-height: 90vh;
   }
 }
