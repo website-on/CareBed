@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareBed | Smart ICU&NICU Bed Monitoring System</title>
+    <meta name="description" content="Smart ICU&NICU Bed Monitoring System">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Hospital Login/Register Modal -->
+    <div id="login-modal" class="modal-overlay">
+        <div class="login-box box">
+            <!-- Initial Selection View -->
+            <div id="auth-selection-view">
+                <div class="login-header mt-3">
+                    <i class='bx bx-pulse text-primary'></i>
+                    <h2>نظام دخول المستشفيات</h2>
+                    <p>يرجى تحديد نوع الدخول للمتابعة</p>
+                </div>
+                <div class="auth-choices">
+                    <button type="button" class="btn btn-primary w-100 mb-3" id="btn-choice-login"
+                        style="padding: 20px; font-size: 18px;">
+                        <i class='bx bx-log-in-circle' style="font-size: 24px; margin-left: 10px;"></i> تسجيل مستشفى
+                        مسجل
+                    </button>
+                    <button type="button" class="btn btn-success w-100" id="btn-choice-register"
+                        style="padding: 20px; font-size: 18px;">
+                        <i class='bx bx-plus-circle' style="font-size: 24px; margin-left: 10px;"></i> تسجيل مستشفى جديد
+                    </button>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <div id="auth-login-view" class="hidden">
+                <div class="back-btn" id="btn-back-from-login"><i class='bx bx-right-arrow-alt'></i> رجوع</div>
+                <div class="login-header mt-3">
+                    <i class='bx bx-log-in-circle text-primary'></i>
+                    <h2 id="auth-title">دخول مستشفى سابق</h2>
+                    <p id="auth-subtitle">أدخل بيانات العيادة للتحكم بالأنظمة</p>
+                </div>
+
+                <form id="login-form">
+                    <div class="form-group">
+                        <label>اسم المؤسسة</label>
+                        <input type="text" id="login-name" required placeholder="مثال: مستشفى النور">
+                    </div>
+                    <div class="form-group-row">
+                        <div class="form-group w-50 pe-2">
+                            <label>المحافظة</label>
+                            <input type="text" id="login-gov" required placeholder="المحافظة">
+                        </div>
+                        <div class="form-group w-50 ps-2">
+                            <label>المدينة</label>
+                            <input type="text" id="login-city" required placeholder="المدينة">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>الكود السري</label>
+                        <input type="password" id="login-code" required placeholder="كود الدخول">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">تسجيل الدخول</button>
+                    <div id="login-error" class="text-danger mt-3 text-center hidden">بيانات الدخول غير صحيحة.</div>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="auth-register-view" class="hidden">
+                <div class="back-btn" id="btn-back-from-register"><i class='bx bx-right-arrow-alt'></i> رجوع</div>
+                <div class="login-header mt-3">
+                    <i class='bx bx-plus-circle text-success'></i>
+                    <h2>تسجيل مستشفى جديد</h2>
+                    <p>انضم للشبكة الوطنية في خطوة واحدة</p>
+                </div>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label>اسم المؤسسة الجديدة</label>
+                        <input type="text" id="reg-name" required placeholder="مثال: مستشفى السلام التخصصي">
+                    </div>
+                    <div class="form-group-row">
+                        <div class="form-group w-50 pe-2">
+                            <label>المحافظة</label>
+                            <input type="text" id="reg-gov" required placeholder="المحافظة...">
+                        </div>
+                        <div class="form-group w-50 ps-2">
+                            <label>المدينة</label>
+                            <input type="text" id="reg-city" required placeholder="المدينة...">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>تعيين كود الدخول السري</label>
+                        <input type="password" id="reg-code" required placeholder="يجب حفظه لعمليات الدخول المستقبلية">
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">تسجيل اعتماد المستشفى</button>
+                </form>
+            </div>
+
+            <span class="close-modal-upper" id="close-login-modal"><i class='bx bx-x'></i></span>
+        </div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="logo-details">
+            <i class='bx bx-pulse'></i>
+            <span class="logo_name">CareBed</span>
+        </div>
+        <ul class="nav-links">
+            <li class="active">
+                <a href="#" data-view="home">
+                    <i class='bx bx-grid-alt'></i>
+                    <span class="link_name">الرئيسية (بحث)</span>
+                </a>
+            </li>
+            <li id="nav-hospital-dash" class="hidden">
+                <a href="#" data-view="dashboard">
+                    <i class='bx bx-tv'></i>
+                    <span class="link_name">عرض لوحة بيانات المستشفى</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="admin-tab-link">
+                    <i class='bx bx-edit'></i>
+                    <span class="link_name">لوحة الأطباء والإدارة</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" data-view="analytics">
+                    <i class='bx bx-pie-chart-alt-2'></i>
+                    <span class="link_name">التحليل والتنبؤ</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <section class="home-section">
+        <nav class="top-header">
+            <div class="sidebar-button">
+                <i class='bx bx-menu sidebarBtn'></i>
+                <span class="dashboard-title">بوابة النظام الموحد للأسرة</span>
+            </div>
+            <div class="profile-details">
+                <img src="https://ui-avatars.com/api/?name=Guest&background=1e293b&color=fff" id="profile-img"
+                    alt="profileImg">
+                <span class="admin_name" id="logged-hospital-name">مستخدم زائر</span>
+                <i class='bx bx-log-out hidden' id="logout-btn"
+                    style="cursor: pointer; font-size: 24px; margin-right: 15px; color: var(--color-danger);"
+                    title="تسجيل الخروج"></i>
+            </div>
+        </nav>
+
+        <div class="home-content">
+
+            <!-- View: Home Welcome & Search (For Guest/Normal Users) -->
+            <div id="view-home" class="app-view active-view">
+                <div class="welcome-container box mb-4">
+                    <div class="welcome-text">
+                        <h1>مرحباً بك في CareBed</h1>
+                        <p>نظام ذكي وشامل لمراقبة أسرة العناية المركزة،حديثي الولادة، وبنوك الدم عبر شبكة المستشفيات.
+                        </p>
+                        <p class="text-secondary mt-2" style="font-size: 14px;">للبحث عن سرير متاح أو بنك دم، استخدم
+                            محرك البحث الذكي بالأسفل.</p>
+                    </div>
+                    <img src="https://cdn-icons-png.flaticon.com/512/3209/3209000.png" alt="CareBed Map"
+                        class="welcome-img">
+                </div>
+
+                <div class="box">
+                    <div class="title"><i class='bx bx-search-alt-2'></i> ابحث عن مستشفى في محيطك</div>
+                    <form id="public-search-form" class="search-form-grid">
+                        <div class="form-group mb-0">
+                            <input type="text" id="search-name" placeholder="اسم المستشفى (اختياري)">
+                        </div>
+                        <div class="form-group mb-0">
+                            <input type="text" id="search-gov" placeholder="المحافظة">
+                        </div>
+                        <div class="form-group mb-0">
+                            <input type="text" id="search-city" placeholder="المدينة">
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class='bx bx-search'></i> بحث</button>
+                    </form>
+                </div>
+
+                <!-- Public Search Results -->
+                <div id="search-results-container" class="mt-4 hidden">
+                    <h3 class="mb-3 text-secondary">نتائج البحث:</h3>
+                    <div class="hospital-list" id="public-hospital-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- View: Single Hospital Dashboard (Shows upon clicking a hospital) -->
+            <div id="view-dashboard" class="app-view">
+                <h3 class="mb-4" id="viewing-hospital-title"
+                    style="color: var(--color-primary); display: flex; align-items: center; gap: 10px;">
+                    <i class='bx bx-building-house'></i> لوحة بيانات: مستشفى...
+                </h3>
+
+                <div class="overview-boxes" id="kpi-cards">
+                    <!-- Cards will be populated dynamically via JS -->
+                </div>
+
+                <div class="sales-boxes">
+                    <div class="recent-sales box">
+                        <div class="title">إشغال وأسرة الأقسام</div>
+                        <div class="empty-state hidden" id="empty-depts">لا توجد أقسام مسجلة.</div>
+                        <div class="department-grid" id="departments-grid">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="top-sales box">
+                        <div class="title">مخزون واحتياج بنك الدم</div>
+                        <ul class="top-sales-details" id="blood-bank-list">
+                            <!-- Populated dynamically -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View: Admin Panel (Logged In Hospitals Only) -->
+            <div id="view-admin" class="app-view">
+                <div class="admin-grid">
+
+                    <!-- Update Departments -->
+                    <div class="box admin-panel">
+                        <div class="title"><i class='bx bx-bed'></i> إدارة أسرة الأقسام</div>
+                        <form id="dept-form" class="admin-form">
+                            <div class="form-group">
+                                <label>اسم القسم (مثال: العناية المركزة)</label>
+                                <input type="text" id="dept-name" required placeholder="ادخل اسم القسم...">
+                            </div>
+                            <div class="form-group">
+                                <label>إجمالي الأسرة</label>
+                                <input type="number" id="dept-total" min="0" required placeholder="العدد الكلي للأسرة">
+                            </div>
+                            <div class="form-group">
+                                <label>الأسرة المشغولة</label>
+                                <input type="number" id="dept-occupied" min="0" required
+                                    placeholder="عدد الأسرة المشغولة حالياً">
+                            </div>
+                            <button type="submit" class="btn btn-primary"><i class='bx bx-save'></i> تحديث
+                                القسم</button>
+                        </form>
+                    </div>
+
+                    <!-- Manage Emergency Beds -->
+                    <div class="box admin-panel">
+                        <div class="title"><i class='bx bx-first-aid'></i> إدارة أسرة الطوارئ</div>
+                        <form id="emergency-beds-form" class="admin-form">
+                            <div class="form-group">
+                                <label>تحديث أسرة الطوارئ المتاحة</label>
+                                <input type="number" id="admin-emergency-beds" min="0" required
+                                    placeholder="الرقم الإجمالي للأسرة...">
+                            </div>
+                            <button type="submit" class="btn btn-warning"
+                                style="background: var(--color-warning); color: #fff;"><i class='bx bx-refresh'></i> حفظ
+                                أسرة
+                                الطوارئ</button>
+                        </form>
+                    </div>
+
+                    <!-- Manage Blood Bank (Donate/Request) -->
+                    <div class="box admin-panel">
+                        <div class="title"><i class='bx bx-donate-blood'></i> إدارة طلبات وتبرعات بنك الدم</div>
+                        <form id="blood-form" class="admin-form">
+                            <div class="form-group">
+                                <label>فصيلة الدم</label>
+                                <select id="blood-type" required>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>تسجيل تبرع (عدد الأكياس المتاحة كلياً)</label>
+                                <input type="number" id="blood-avail" min="0" required
+                                    placeholder="المخزون الحالي المتوفر">
+                            </div>
+                            <div class="form-group">
+                                <label>طلب أكياس عاجلة (احتياج المشفى)</label>
+                                <input type="number" id="blood-requested" min="0"
+                                    placeholder="عدد الأكياس المطلوبة إن وجد عجز">
+                            </div>
+                            <button type="submit" class="btn btn-danger"><i class='bx bx-save'></i> تحديث بنك
+                                الدم</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- View: Analytics & Forecasting -->
+            <div id="view-analytics" class="app-view">
+                <div class="analytics-layout">
+                    <div class="box chart-box">
+                        <div class="title">متوسط الإشغال الأسبوعي</div>
+                        <div class="chart-container"
+                            style="position: relative; height: 300px; width: 100%; display: flex; justify-content: center; align-items: center;">
+                            <canvas id="occupancyChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="box stats-box">
+                        <div class="title">مؤشرات التحليل الذكية</div>
+                        <div class="stat-item">
+                            <span class="stat-label">يوم الذروة:</span>
+                            <span class="stat-value text-danger" id="peak-day">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">أقل أيام الضغط:</span>
+                            <span class="stat-value text-success" id="low-pressure-day">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">توقع إشغال الغد:</span>
+                            <span class="stat-value text-warning" id="predicted-occupancy">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Overlay Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
