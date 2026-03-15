@@ -971,79 +971,42 @@ body {
 
 @media (max-width: 768px) {
 
-  /* Make the sidebar a horizontal scrollable top navigation */
-  .sidebar,
-  .sidebar.close {
+  /* Make the sidebar appear from the right side */
+  .sidebar {
     position: fixed;
-    top: 60px;
-    /* sits right below top-header */
-    right: 0;
-    width: 100% !important;
-    height: 60px;
-    padding: 0;
-    border-left: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(10px);
-    z-index: 98;
-    display: flex;
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
-    transition: none;
-    /* Disable sliding transition */
-  }
-
-  /* Hide sidebar logo on mobile since we have one in header */
-  .sidebar .logo-details,
-  .sidebar.close .logo-details {
-    display: none;
-  }
-
-  /* Horizontal links container */
-  .sidebar .nav-links {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    width: max-content;
+    top: 0;
+    right: -280px;
+    width: 260px !important;
     height: 100%;
-    margin: 0;
-    padding: 0 10px;
+    z-index: 9999;
+    transition: all 0.3s ease;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
   }
 
-  .sidebar .nav-links li {
-    margin: 0 5px;
+  .sidebar.close {
+    right: 0;
   }
 
-  /* Link styling for horizontal scroll nav */
-  .sidebar .nav-links li a,
-  .sidebar.close .nav-links li a {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 18px;
-    border-radius: 30px;
-    /* Modern pill shape */
+  /* Make sure links remain vertical on mobile */
+  .sidebar .nav-links {
+    flex-direction: column;
   }
 
-  .sidebar .nav-links li a i,
-  .sidebar.close .nav-links li a i {
-    margin: 0 0 0 8px;
-    /* Margin to the left due to RTL */
-    min-width: unset;
-    font-size: 20px;
-    text-align: right;
-  }
-
-  .sidebar .nav-links li a .link_name,
+  /* Ensure text is visible when open */
   .sidebar.close .nav-links li a .link_name {
     display: inline-block !important;
-    font-size: 14px;
-    font-weight: 500;
-    opacity: 1 !important;
-    pointer-events: auto !important;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sidebar.close .logo-details i {
+    text-align: right;
+    width: auto;
+  }
+
+  .sidebar.close .logo_name {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   /* Top Header tweaks */
@@ -1053,9 +1016,10 @@ body {
     background: var(--bg-secondary);
   }
 
-  /* Hide sidebar toggle since nav is now always on top */
+  /* Show sidebar toggle on mobile since nav is hidden by default */
   .sidebar-button i.sidebarBtn {
-    display: none;
+    display: block;
+    margin-left: 10px;
   }
 
   .dashboard-title {
@@ -1087,9 +1051,7 @@ body {
   }
 
   .home-content {
-    padding: 12px;
-    padding-top: 75px;
-    /* Allow space for the fixed horizontal nav below the header */
+    padding: 15px;
   }
 
   /* UI Adjustments for full width and professional look */
