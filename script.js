@@ -46,8 +46,7 @@ const views = document.querySelectorAll('.app-view');
 const toastEl = document.getElementById('toast');
 
 // Views and Buttons
-const navHospitalDash = document.getElementById('nav-hospital-dash');
-const adminTabLink = document.getElementById('admin-tab-link');
+const loginBtnTop = document.getElementById('login-btn-top');
 const logoutBtn = document.getElementById('logout-btn');
 const emptyDepts = document.getElementById('empty-depts');
 
@@ -95,7 +94,7 @@ function switchToView(viewId) {
   views.forEach(v => v.classList.remove('active-view'));
   document.getElementById(`view-${viewId}`).classList.add('active-view');
 
-  if (viewId === 'analytics') renderChart();
+  if (viewId === 'analysis') renderChart();
 }
 
 navLinks.forEach(link => {
@@ -114,10 +113,10 @@ function showToast(message) {
 }
 
 // --- LOGIN / REGISTER TABS & MODAL LOGIC ---
-adminTabLink.addEventListener('click', (e) => {
+loginBtnTop.addEventListener('click', (e) => {
   e.preventDefault();
   if (currentUserHospital) {
-    switchToView('admin'); // Directly if logged in
+    switchToView('dashboard'); // Directly if logged in
   } else {
     // Reset to selection view
     authSelectionView.classList.remove('hidden');
@@ -224,15 +223,16 @@ function handleSuccessfulLogin(hospital) {
   // UI Update
   document.getElementById('logged-hospital-name').innerText = hospital.name;
   document.getElementById('profile-img').src = `https://ui-avatars.com/api/?name=${hospital.name}&background=0D8ABC&color=fff`;
+  loginBtnTop.classList.add('hidden');
   logoutBtn.classList.remove('hidden');
 
-  navHospitalDash.classList.remove('hidden');
+  document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
   loginForm.reset();
   registerForm.reset();
 
   generateRandomHistoricalData(hospital);
   loadHospitalDashboardData(hospital.id);
-  switchToView('admin'); // Take to admin automatically upon login
+  switchToView('dashboard'); // Take to dashboard automatically upon login
   showToast('تم تسجيل الدخول بصلاحيات الإدارة.');
 }
 
@@ -244,7 +244,8 @@ logoutBtn.addEventListener('click', () => {
   document.getElementById('logged-hospital-name').innerText = "مستخدم زائر";
   document.getElementById('profile-img').src = `https://ui-avatars.com/api/?name=Guest&background=1e293b&color=fff`;
   logoutBtn.classList.add('hidden');
-  navHospitalDash.classList.add('hidden');
+  loginBtnTop.classList.remove('hidden');
+  document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
 
   // Explicitly reset the form containers in case of any data
   document.getElementById('search-results-container').classList.add('hidden');
@@ -307,7 +308,6 @@ function renderPublicHospitals(dummyPlaceholder) {
 
 // When user clicks a hospital from search results -> Open Dashboard for it
 function viewPublicHospitalDashboard(hId) {
-  navHospitalDash.classList.remove('hidden');
   loadHospitalDashboardData(hId);
   switchToView('dashboard');
 }
@@ -394,6 +394,9 @@ function loadHospitalDashboardData(hId) {
             </li>`);
     });
   }
+
+  const emergencyValEl = document.getElementById('emergency-view-val');
+  if (emergencyValEl) emergencyValEl.textContent = hospital.beds;
 }
 
 
