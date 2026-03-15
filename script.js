@@ -102,6 +102,11 @@ navLinks.forEach(link => {
     if (link.id === 'admin-tab-link') return; // Handled separately
     e.preventDefault();
     switchToView(link.getAttribute('data-view'));
+
+    // Close sidebar on mobile after clicking a link
+    if (window.innerWidth <= 768) {
+      sidebar.classList.remove('close');
+    }
   });
 });
 

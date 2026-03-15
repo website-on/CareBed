@@ -971,42 +971,61 @@ body {
 
 @media (max-width: 768px) {
 
-  /* Make the sidebar appear from the right side */
+  /* Hide sidebar by default on mobile */
   .sidebar {
     position: fixed;
-    top: 0;
-    right: -280px;
+    top: 60px;
+    /* sit below header */
     width: 260px !important;
-    height: 100%;
+    height: calc(100% - 60px);
     z-index: 9999;
+    padding-top: 10px;
     transition: all 0.3s ease;
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+    background: var(--bg-secondary);
+    right: -280px;
   }
 
+  /* When toggled (JS adds .close class), show the sidebar */
   .sidebar.close {
     right: 0;
+  }
+
+  .sidebar .logo-details {
+    display: none;
+    /* Hide logo in sidebar on mobile as it's in header */
   }
 
   /* Make sure links remain vertical on mobile */
   .sidebar .nav-links {
     flex-direction: column;
+    padding: 0;
+  }
+
+  .sidebar .nav-links li {
+    width: 100%;
+    margin: 5px 0;
+  }
+
+  .sidebar .nav-links li a {
+    justify-content: flex-start;
+    padding: 12px 20px;
+    border-radius: 0;
   }
 
   /* Ensure text is visible when open */
+  .sidebar .nav-links li a .link_name,
   .sidebar.close .nav-links li a .link_name {
     display: inline-block !important;
-    opacity: 1;
+    opacity: 1 !important;
     pointer-events: auto;
+    font-size: 16px;
   }
 
-  .sidebar.close .logo-details i {
+  .sidebar .nav-links li a i,
+  .sidebar.close .nav-links li a i {
     text-align: right;
-    width: auto;
-  }
-
-  .sidebar.close .logo_name {
-    opacity: 1;
-    pointer-events: auto;
+    margin-left: 15px;
   }
 
   /* Top Header tweaks */
@@ -1016,10 +1035,29 @@ body {
     background: var(--bg-secondary);
   }
 
-  /* Show sidebar toggle on mobile since nav is hidden by default */
+  /* Professional sidebar toggle button on mobile */
   .sidebar-button i.sidebarBtn {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
     margin-left: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .sidebar-button i.sidebarBtn:active {
+    transform: scale(0.95);
+  }
+
+  .sidebar-button {
+    display: flex !important;
   }
 
   .dashboard-title {
