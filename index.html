@@ -4,428 +4,460 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CareBed | Smart ICU&NICU Bed Monitoring System</title>
-    <meta name="description" content="Smart ICU&NICU Bed Monitoring System">
+    <title>MedDash | Smart Healthcare Resource Management</title>
+    <meta name="description"
+        content="Advanced platform to monitor hospital resources, ICU beds, and blood banks instantly.">
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700;800&display=swap"
         rel="stylesheet">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=3">
 </head>
 
 <body>
 
-    <!-- Hospital Login/Register Modal -->
-    <div id="login-modal" class="modal-overlay">
-        <div class="login-box box">
-            <!-- Initial Selection View -->
-            <div id="auth-selection-view">
-                <div class="login-header mt-3">
-                    <i class='bx bx-pulse text-primary'></i>
-                    <h2>نظام دخول المستشفيات</h2>
-                    <p>يرجى تحديد نوع الدخول للمتابعة</p>
+    <!-- Landing Page (Visible by default) -->
+    <div id="landing-page" class="landing-wrapper">
+        <div class="landing-left">
+            <div class="landing-content">
+                <div class="brand mb-4">
+                    <i class='bx bx-pulse'></i> <span class="font-outfit"
+                        style="font-weight: 800; font-size: 32px; letter-spacing: 1px;">MedDash</span>
                 </div>
-                <div class="auth-choices">
-                    <button type="button" class="btn btn-primary w-100 mb-3" id="btn-choice-login"
-                        style="padding: 20px; font-size: 18px;">
-                        <i class='bx bx-log-in-circle' style="font-size: 24px; margin-left: 10px;"></i> تسجيل مستشفى
-                        مسجل
+                <div class="welcome-badge">Version 2.0.1</div>
+                <h1 class="english-title font-outfit">Smart Healthcare <br><span class="text-gradient">Resource
+                        Monitor</span></h1>
+                <p class="english-desc font-outfit">
+                    An advanced, real-time centralized platform designed to streamline hospital operations.
+                    Monitor ICU & NICU bed availability, track blood bank inventory instantly,
+                    and manage emergency resources efficiently to save lives.
+                </p>
+                <div class="welcome-features mb-4" style="direction: ltr;">
+                    <div class="feature-tag"><i class='bx bx-check-shield'></i> <span>Real-time Sync</span></div>
+                    <div class="feature-tag"><i class='bx bx-data'></i> <span>Data Accuracy</span></div>
+                    <div class="feature-tag"><i class='bx bx-line-chart'></i> <span>Smart Analytics</span></div>
+                </div>
+
+                <!-- Quick Search for Guests -->
+                <div class="quick-guest-search mt-5"
+                    style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 25px;">
+                    <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 16px;">للمواطنين: ابحث الآن
+                        عن المستشفيات والأسرة المتاحة سريعاً</p>
+                    <button class="btn btn-secondary w-50" id="btn-guest-search"
+                        style="font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <i class='bx bx-search-alt-2' style="font-size: 24px;"></i> الدخول السريع للبحث
                     </button>
-                    <button type="button" class="btn btn-success w-100" id="btn-choice-register"
-                        style="padding: 20px; font-size: 18px;">
-                        <i class='bx bx-plus-circle' style="font-size: 24px; margin-left: 10px;"></i> تسجيل مستشفى جديد
-                    </button>
                 </div>
             </div>
+        </div>
 
-            <!-- Login Form -->
-            <div id="auth-login-view" class="hidden">
-                <div class="back-btn" id="btn-back-from-login"><i class='bx bx-right-arrow-alt'></i> رجوع</div>
-                <div class="login-header mt-3">
-                    <i class='bx bx-log-in-circle text-primary'></i>
-                    <h2 id="auth-title">دخول مستشفى سابق</h2>
-                    <p id="auth-subtitle">أدخل بيانات العيادة للتحكم بالأنظمة</p>
+        <div class="landing-right">
+            <div class="auth-box box">
+                <!-- Initial Selection View -->
+                <div id="auth-selection-view">
+                    <div class="login-header mt-2">
+                        <i class='bx bx-user-circle text-primary'></i>
+                        <h2>نظام إدارة المستشفيات</h2>
+                        <p>يرجى تحديد نوع الدخول للمتابعة إلى لوحة التحكم</p>
+                    </div>
+                    <div class="auth-choices">
+                        <button type="button" class="btn btn-primary w-100 mb-3" id="btn-choice-login"
+                            style="padding: 20px; font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                            <i class='bx bx-log-in-circle' style="font-size: 24px;"></i> تسجيل مستشفى مسجل
+                        </button>
+                        <button type="button" class="btn btn-success w-100" id="btn-choice-register"
+                            style="padding: 20px; font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                            <i class='bx bx-plus-circle' style="font-size: 24px;"></i> تسجيل مستشفى جديد
+                        </button>
+                    </div>
                 </div>
 
-                <form id="login-form">
-                    <div class="form-group">
-                        <label>اسم المؤسسة</label>
-                        <input type="text" id="login-name" required placeholder="مثال: مستشفى النور">
+                <!-- Login Form -->
+                <div id="auth-login-view" class="hidden">
+                    <div class="back-btn" id="btn-back-from-login"><i class='bx bx-right-arrow-alt'></i> رجوع</div>
+                    <div class="login-header mt-2">
+                        <i class='bx bx-log-in-circle text-primary'></i>
+                        <h2 id="auth-title">دخول مستشفى سابق</h2>
+                        <p id="auth-subtitle">أدخل بيانات العيادة للتحكم بالأنظمة</p>
                     </div>
-                    <div class="form-group-row">
-                        <div class="form-group w-50 pe-2">
-                            <label>المحافظة</label>
-                            <input type="text" id="login-gov" required placeholder="المحافظة">
-                        </div>
-                        <div class="form-group w-50 ps-2">
-                            <label>المدينة</label>
-                            <input type="text" id="login-city" required placeholder="المدينة">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>الكود السري</label>
-                        <input type="password" id="login-code" required placeholder="كود الدخول">
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">تسجيل الدخول</button>
-                    <div id="login-error" class="text-danger mt-3 text-center hidden">بيانات الدخول غير صحيحة.</div>
-                </form>
-            </div>
 
-            <!-- Register Form -->
-            <div id="auth-register-view" class="hidden">
-                <div class="back-btn" id="btn-back-from-register"><i class='bx bx-right-arrow-alt'></i> رجوع</div>
-                <div class="login-header mt-3">
-                    <i class='bx bx-plus-circle text-success'></i>
-                    <h2>تسجيل مستشفى جديد</h2>
-                    <p>انضم للشبكة الوطنية في خطوة واحدة</p>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label>اسم المؤسسة</label>
+                            <input type="text" id="login-name" required placeholder="مثال: مستشفى النور">
+                        </div>
+                        <div class="form-group-row">
+                            <div class="form-group w-50 pe-2">
+                                <label>المحافظة</label>
+                                <input type="text" id="login-gov" required placeholder="المحافظة">
+                            </div>
+                            <div class="form-group w-50 ps-2">
+                                <label>المدينة</label>
+                                <input type="text" id="login-city" required placeholder="المدينة">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>الكود السري</label>
+                            <input type="password" id="login-code" required placeholder="كود الدخول">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">تسجيل الدخول</button>
+                        <div id="login-error" class="text-danger mt-3 text-center hidden">بيانات الدخول غير صحيحة.</div>
+                    </form>
                 </div>
-                <form id="register-form">
-                    <div class="form-group">
-                        <label>اسم المؤسسة الجديدة</label>
-                        <input type="text" id="reg-name" required placeholder="مثال: مستشفى السلام التخصصي">
-                    </div>
-                    <div class="form-group-row">
-                        <div class="form-group w-50 pe-2">
-                            <label>المحافظة</label>
-                            <input type="text" id="reg-gov" required placeholder="المحافظة...">
-                        </div>
-                        <div class="form-group w-50 ps-2">
-                            <label>المدينة</label>
-                            <input type="text" id="reg-city" required placeholder="المدينة...">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>تعيين كود الدخول السري</label>
-                        <input type="password" id="reg-code" required placeholder="يجب حفظه لعمليات الدخول المستقبلية">
-                    </div>
-                    <button type="submit" class="btn btn-success w-100">تسجيل اعتماد المستشفى</button>
-                </form>
-            </div>
 
-            <span class="close-modal-upper" id="close-login-modal"><i class='bx bx-x'></i></span>
+                <!-- Register Form -->
+                <div id="auth-register-view" class="hidden">
+                    <div class="back-btn" id="btn-back-from-register"><i class='bx bx-right-arrow-alt'></i> رجوع</div>
+                    <div class="login-header mt-2">
+                        <i class='bx bx-plus-circle text-success'></i>
+                        <h2>تسجيل مستشفى جديد</h2>
+                        <p>انضم للشبكة الوطنية في خطوة واحدة</p>
+                    </div>
+                    <form id="register-form">
+                        <div class="form-group">
+                            <label>اسم المؤسسة الجديدة</label>
+                            <input type="text" id="reg-name" required placeholder="مثال: مستشفى السلام التخصصي">
+                        </div>
+                        <div class="form-group-row">
+                            <div class="form-group w-50 pe-2">
+                                <label>المحافظة</label>
+                                <input type="text" id="reg-gov" required placeholder="المحافظة...">
+                            </div>
+                            <div class="form-group w-50 ps-2">
+                                <label>المدينة</label>
+                                <input type="text" id="reg-city" required placeholder="المدينة...">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>تعيين كود الدخول السري</label>
+                            <input type="password" id="reg-code" required
+                                placeholder="يجب حفظه لعمليات الدخول المستقبلية">
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">تسجيل اعتماد المستشفى</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Sidebar Navigation -->
-    <nav class="sidebar">
-        <div class="logo-details">
-            <i class='bx bx-pulse'></i>
-            <span class="logo_name">CareBed</span>
-        </div>
-        <ul class="nav-links">
-            <li class="active">
-                <a href="#" data-view="home">
-                    <i class='bx bx-home'></i>
-                    <span class="link_name">الرئيسية</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" data-view="dashboard">
-                    <i class='bx bx-grid-alt'></i>
-                    <span class="link_name">لوحة التحكم</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" data-view="find-beds">
-                    <i class='bx bx-search-alt-2'></i>
-                    <span class="link_name">بحث عن أسرة</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" data-view="blood-needs">
-                    <i class='bx bx-donate-blood'></i>
-                    <span class="link_name">احتياجات الدم</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" data-view="smart-alerts">
-                    <i class='bx bx-bell'></i>
-                    <span class="link_name">تنبيهات ذكية</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" data-view="analysis">
-                    <i class='bx bx-pie-chart-alt-2'></i>
-                    <span class="link_name">تحليلات</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" data-view="prediction">
-                    <i class='bx bx-line-chart'></i>
-                    <span class="link_name">توقعات</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" data-view="hospitals">
-                    <i class='bx bx-building-house'></i>
-                    <span class="link_name">المستشفيات</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" data-view="emergency">
-                    <i class='bx bx-first-aid'></i>
-                    <span class="link_name">طوارئ</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-
-    <!-- Main Content -->
-    <section class="home-section">
-        <nav class="top-header">
-            <div class="sidebar-button">
-                <i class='bx bx-menu sidebarBtn'></i>
-                <span class="dashboard-title">CareBed</span>
+    <!-- Main App Container (Hidden initially) -->
+    <div id="main-app" class="hidden">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo-details">
+                <i class='bx bx-pulse'></i>
+                <span class="logo_name font-outfit">MedDash</span>
             </div>
-            <div class="profile-details">
-                <img src="https://ui-avatars.com/api/?name=Guest&background=1e293b&color=fff" id="profile-img"
-                    alt="profileImg">
-                <span class="admin_name" id="logged-hospital-name">مستخدم زائر</span>
-                <i class='bx bx-log-in-circle' id="login-btn-top"
-                    style="cursor: pointer; font-size: 24px; margin-right: 15px; color: var(--color-primary);"
-                    title="دخول إدارة المستشفى"></i>
-                <i class='bx bx-log-out hidden' id="logout-btn"
-                    style="cursor: pointer; font-size: 24px; margin-right: 15px; color: var(--color-danger);"
-                    title="تسجيل الخروج"></i>
-            </div>
+            <ul class="nav-links">
+                <!-- Sorted according to user instructions: المهم ثم الأهم -->
+                <li class="active">
+                    <a href="#" data-view="dashboard">
+                        <i class='bx bx-grid-alt'></i>
+                        <span class="link_name">لوحة التحكم</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-view="find-beds">
+                        <i class='bx bx-search-alt-2'></i>
+                        <span class="link_name">بحث عن مستشفيات</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-view="blood-needs">
+                        <i class='bx bx-donate-blood'></i>
+                        <span class="link_name">احتياجات الدم</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-view="hospitals">
+                        <i class='bx bx-building-house'></i>
+                        <span class="link_name">أقسام المستشفيات</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-view="emergency">
+                        <i class='bx bx-first-aid'></i>
+                        <span class="link_name">طوارئ</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-view="smart-alerts">
+                        <i class='bx bx-bell'></i>
+                        <span class="link_name">تنبيهات ذكية</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-view="analysis">
+                        <i class='bx bx-pie-chart-alt-2'></i>
+                        <span class="link_name">تحليلات</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-view="prediction">
+                        <i class='bx bx-line-chart'></i>
+                        <span class="link_name">توقعات</span>
+                    </a>
+                </li>
+            </ul>
         </nav>
 
-        <div class="home-content">
+        <!-- Main Content -->
+        <section class="home-section">
+            <nav class="top-header">
+                <div class="sidebar-button">
+                    <i class='bx bx-menu sidebarBtn'></i>
+                    <span class="dashboard-title font-outfit">MedDash</span>
+                </div>
+                <!-- Mini search in the header for super fast access -->
+                <div class="header-fast-search hidden" id="header-search-bar"
+                    style="flex: 1; max-width: 400px; margin: 0 20px;">
+                    <div class="search-input-box" style="position: relative; width: 100%;">
+                        <i class='bx bx-search'
+                            style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 20px;"></i>
+                        <input type="text" id="instant-header-search" placeholder="ابحث سريعاً عن مستشفى أو مدينة..."
+                            style="width: 100%; padding: 10px 45px 10px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; outline:none;">
+                    </div>
+                </div>
+                <div class="profile-details">
+                    <img src="https://ui-avatars.com/api/?name=Guest&background=1e293b&color=fff" id="profile-img"
+                        alt="profileImg">
+                    <span class="admin_name" id="logged-hospital-name">مستخدم زائر</span>
+                    <i class='bx bx-log-out hidden' id="logout-btn"
+                        style="cursor: pointer; font-size: 24px; margin-right: 15px; color: var(--color-danger);"
+                        title="تسجيل الخروج"></i>
+                </div>
+            </nav>
 
-            <!-- 1. View: Home -->
-            <div id="view-home" class="app-view active-view">
-                <div class="welcome-container mb-5">
-                    <div class="welcome-content">
-                        <div class="welcome-badge">الإصدار 2.0</div>
-                        <h1 class="welcome-heading">نظام ذكي وشامل لمراقبة <br><span class="text-gradient">الرعاية
-                                الصحية</span></h1>
-                        <p class="welcome-description">منصة مركزية متطورة لمتابعة توافر أسرة العناية المركزة، وحديثي
-                            الولادة، ومخزون بنوك الدم في شبكة المستشفيات بصورة لحظية.</p>
-                        <div class="welcome-features">
-                            <div class="feature-tag"><i class='bx bx-shield-quarter'></i> <span>دقة البيانات</span>
+            <div class="home-content">
+
+                <!-- 1. View: Dashboard -->
+                <div id="view-dashboard" class="app-view active-view">
+                    <h3 class="mb-4"
+                        style="color: var(--color-primary); display: flex; align-items: center; gap: 10px;">
+                        <i class='bx bx-grid-alt'></i> لوحة التحكم الشاملة لكافة المستشفيات
+                    </h3>
+                    <div class="overview-boxes" id="kpi-cards">
+                        <!-- Global KPI Cards will be populated dynamically via JS -->
+                    </div>
+                </div>
+
+                <!-- 2. View: Find Beds -->
+                <div id="view-find-beds" class="app-view">
+                    <h3 class="mb-4 text-primary"><i class='bx bx-search-alt-2'></i> البحث الدقيق عن مستشفيات أو أسرة
+                    </h3>
+                    <div class="search-section box">
+                        <div class="title mb-4" style="font-size: 22px;">بحث ذكي وفوري (يظهر تلقائياً)</div>
+                        <div class="search-form-grid">
+                            <div class="form-group mb-0">
+                                <label><i class='bx bx-building'></i> اسم المستشفى</label>
+                                <input type="text" id="search-name" placeholder="اكتب للبحث فوراً...">
                             </div>
-                            <div class="feature-tag"><i class='bx bx-bolt-circle'></i> <span>استجابة فورية</span></div>
-                            <div class="feature-tag"><i class='bx bx-line-chart'></i> <span>تحليل ذكي</span></div>
+                            <div class="form-group mb-0">
+                                <label><i class='bx bx-map-alt'></i> المحافظة</label>
+                                <input type="text" id="search-gov" placeholder="مثال: القاهرة">
+                            </div>
+                            <div class="form-group mb-0">
+                                <label><i class='bx bx-map'></i> المدينة</label>
+                                <input type="text" id="search-city" placeholder="الحي أو المدينة">
+                            </div>
+                            <div class="form-group mb-0 submit-group">
+                                <!-- Search button removed as results appear on input, replaced with clear button -->
+                                <button type="button" id="btn-clear-search" class="btn btn-secondary search-btn"
+                                    style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1);"><i
+                                        class='bx bx-x'></i> مسح</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Public Search Results -->
+                    <div id="search-results-container" class="mt-4">
+                        <h3 class="mb-3 text-secondary" id="search-results-title">المستشفيات المتاحة:</h3>
+                        <div class="hospital-list" id="public-hospital-list">
+                            <!-- Populated by JS -->
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 2. View: Dashboard -->
-            <div id="view-dashboard" class="app-view">
-                <h3 class="mb-4" style="color: var(--color-primary); display: flex; align-items: center; gap: 10px;">
-                    <i class='bx bx-grid-alt'></i> لوحة التحكم الشاملة لكافة المستشفيات
-                </h3>
-                <div class="overview-boxes" id="kpi-cards">
-                    <!-- Global KPI Cards will be populated dynamically via JS -->
-                </div>
-            </div>
+                <!-- 3. View: Blood Needs -->
+                <div id="view-blood-needs" class="app-view">
+                    <h3 class="mb-4" style="color: var(--color-danger);"><i class='bx bx-donate-blood'></i> احتياجات
+                        وبنك الدم</h3>
+                    <div class="sales-boxes">
+                        <div class="top-sales box w-100" style="grid-column: span 2;">
+                            <div class="title">مخزون واحتياج بنك الدم</div>
+                            <ul class="top-sales-details" id="blood-bank-list">
+                                <!-- Populated dynamically -->
+                            </ul>
+                        </div>
+                    </div>
 
-            <!-- 3. View: Find Beds -->
-            <div id="view-find-beds" class="app-view">
-                <h3 class="mb-4 text-primary"><i class='bx bx-search-alt-2'></i> البحث الدقيق عن أسرة</h3>
-                <div class="search-section box">
-                    <div class="title mb-4" style="font-size: 22px;">ابحث عن المستشفى المناسب</div>
-                    <form id="public-search-form" class="search-form-grid">
-                        <div class="form-group mb-0">
-                            <label><i class='bx bx-building'></i> اسم المستشفى</label>
-                            <input type="text" id="search-name" placeholder="مثال: مستشفى السلام (اختياري)">
-                        </div>
-                        <div class="form-group mb-0">
-                            <label><i class='bx bx-map-alt'></i> المحافظة</label>
-                            <input type="text" id="search-gov" placeholder="مثال: القاهرة">
-                        </div>
-                        <div class="form-group mb-0">
-                            <label><i class='bx bx-map'></i> المدينة</label>
-                            <input type="text" id="search-city" placeholder="الحي أو المدينة">
-                        </div>
-                        <div class="form-group mb-0 submit-group">
-                            <button type="submit" class="btn btn-primary search-btn"><i class='bx bx-search'></i>
-                                بحث</button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Public Search Results -->
-                <div id="search-results-container" class="mt-4 hidden">
-                    <h3 class="mb-3 text-secondary">نتائج البحث:</h3>
-                    <div class="hospital-list" id="public-hospital-list">
-                        <!-- Populated by JS -->
+                    <!-- Manage Blood Bank (Donate/Request) - Admin Only -->
+                    <div class="box admin-panel mt-4 hidden admin-only">
+                        <div class="title"><i class='bx bx-donate-blood'></i> تحديث طلبات وتبرعات بنك الدم (لإدارة
+                            المستشفى)</div>
+                        <form id="blood-form" class="admin-form">
+                            <div class="form-group">
+                                <label>فصيلة الدم</label>
+                                <select id="blood-type" required>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>تسجيل تبرع (عدد الأكياس المتاحة كلياً)</label>
+                                <input type="number" id="blood-avail" min="0" required
+                                    placeholder="المخزون الحالي المتوفر">
+                            </div>
+                            <div class="form-group">
+                                <label>طلب أكياس عاجلة (احتياج المشفى)</label>
+                                <input type="number" id="blood-requested" min="0"
+                                    placeholder="عدد الأكياس المطلوبة إن وجد عجز">
+                            </div>
+                            <button type="submit" class="btn btn-danger"><i class='bx bx-save'></i> تحديث بنك
+                                الدم</button>
+                        </form>
                     </div>
                 </div>
-            </div>
 
-            <!-- 4. View: Blood Needs -->
-            <div id="view-blood-needs" class="app-view">
-                <h3 class="mb-4" style="color: var(--color-danger);"><i class='bx bx-donate-blood'></i> احتياجات وبنك
-                    الدم</h3>
-                <div class="sales-boxes">
-                    <div class="top-sales box w-100" style="grid-column: span 2;">
-                        <div class="title">مخزون واحتياج بنك الدم</div>
-                        <ul class="top-sales-details" id="blood-bank-list">
+                <!-- 4. View: Hospitals (Departments) -->
+                <div id="view-hospitals" class="app-view">
+                    <h3 class="mb-4 text-success"><i class='bx bx-building-house'></i> أقسام المستشفى والأسرة</h3>
+                    <div class="box mb-4">
+                        <div class="title" id="viewing-hospital-title">أقسام المستشفى</div>
+                        <div class="empty-state hidden" id="empty-depts">لا توجد أقسام مسجلة.</div>
+                        <div class="department-grid" id="departments-grid">
                             <!-- Populated dynamically -->
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Manage Blood Bank (Donate/Request) - Admin Only -->
-                <div class="box admin-panel mt-4 hidden admin-only">
-                    <div class="title"><i class='bx bx-donate-blood'></i> تحديث طلبات وتبرعات بنك الدم (لإدارة المستشفى)
-                    </div>
-                    <form id="blood-form" class="admin-form">
-                        <div class="form-group">
-                            <label>فصيلة الدم</label>
-                            <select id="blood-type" required>
-                                <option value="A+">A+</option>
-                                <option value="A-">A-</option>
-                                <option value="B+">B+</option>
-                                <option value="B-">B-</option>
-                                <option value="O+">O+</option>
-                                <option value="O-">O-</option>
-                                <option value="AB+">AB+</option>
-                                <option value="AB-">AB-</option>
-                            </select>
                         </div>
-                        <div class="form-group">
-                            <label>تسجيل تبرع (عدد الأكياس المتاحة كلياً)</label>
-                            <input type="number" id="blood-avail" min="0" required placeholder="المخزون الحالي المتوفر">
-                        </div>
-                        <div class="form-group">
-                            <label>طلب أكياس عاجلة (احتياج المشفى)</label>
-                            <input type="number" id="blood-requested" min="0"
-                                placeholder="عدد الأكياس المطلوبة إن وجد عجز">
-                        </div>
-                        <button type="submit" class="btn btn-danger"><i class='bx bx-save'></i> تحديث بنك الدم</button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- 5. View: Smart Alerts -->
-            <div id="view-smart-alerts" class="app-view">
-                <h3 class="mb-4 text-warning" style="color: var(--color-warning);"><i class='bx bx-bell'></i> التنبيهات
-                    الذكية اللحظية</h3>
-                <div class="box">
-                    <div id="smart-alerts-container">
-                        <!-- Alerts dynamically appended -->
-                        <div class="empty-state">لا توجد تنبيهات نشطة حالياً.</div>
                     </div>
-                </div>
-            </div>
 
-            <!-- 6. View: Analysis -->
-            <div id="view-analysis" class="app-view">
-                <h3 class="mb-4 text-primary"><i class='bx bx-pie-chart-alt-2'></i> تحليلات ورسوم بيانية</h3>
-                <div class="box chart-box">
-                    <div class="title">متوسط الإشغال الأسبوعي</div>
-                    <div class="chart-container"
-                        style="position: relative; height: 350px; width: 100%; display: flex; justify-content: center; align-items: center;">
-                        <canvas id="occupancyChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 7. View: Prediction -->
-            <div id="view-prediction" class="app-view">
-                <h3 class="mb-4" style="color: #8b5cf6;"><i class='bx bx-line-chart'></i> التوقعات المستقبلية
-                    (AI-Driven)</h3>
-                <div class="box stats-box">
-                    <div class="title">مؤشرات التحليل الذكية</div>
-                    <div class="stat-item"
-                        style="padding: 20px; background: rgba(255,255,255,0.02); margin-bottom: 10px; border-radius: 8px;">
-                        <span class="stat-label">يوم الذروة المتوقع:</span>
-                        <span class="stat-value text-danger" id="peak-day"
-                            style="font-size: 20px; font-weight: bold;">-</span>
-                    </div>
-                    <div class="stat-item"
-                        style="padding: 20px; background: rgba(255,255,255,0.02); margin-bottom: 10px; border-radius: 8px;">
-                        <span class="stat-label">أقل أيام الضغط:</span>
-                        <span class="stat-value text-success" id="low-pressure-day"
-                            style="font-size: 20px; font-weight: bold;">-</span>
-                    </div>
-                    <div class="stat-item"
-                        style="padding: 20px; background: rgba(255,255,255,0.02); border-radius: 8px;">
-                        <span class="stat-label">توقع إشغال الغد:</span>
-                        <span class="stat-value text-warning" id="predicted-occupancy"
-                            style="font-size: 24px; font-weight: bold;">-</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 8. View: Hospitals -->
-            <div id="view-hospitals" class="app-view">
-                <h3 class="mb-4 text-success"><i class='bx bx-building-house'></i> أقسام المستشفى والأسرة</h3>
-                <div class="box mb-4">
-                    <div class="title" id="viewing-hospital-title">أقسام المستشفى</div>
-                    <div class="empty-state hidden" id="empty-depts">لا توجد أقسام مسجلة.</div>
-                    <div class="department-grid" id="departments-grid">
-                        <!-- Populated dynamically -->
-                    </div>
-                </div>
-
-                <!-- Update Departments - Admin Only -->
-                <div class="box admin-panel admin-only hidden">
-                    <div class="title"><i class='bx bx-bed'></i> إدارة أسرة الأقسام (لإدارة المستشفى)</div>
-                    <form id="dept-form" class="admin-form">
-                        <div class="form-group">
-                            <label>اسم القسم (مثال: العناية المركزة)</label>
-                            <input type="text" id="dept-name" required placeholder="ادخل اسم القسم...">
-                        </div>
-                        <div class="form-group">
-                            <label>إجمالي الأسرة</label>
-                            <input type="number" id="dept-total" min="0" required placeholder="العدد الكلي للأسرة">
-                        </div>
-                        <div class="form-group">
-                            <label>الأسرة المشغولة</label>
-                            <input type="number" id="dept-occupied" min="0" required
-                                placeholder="عدد الأسرة المشغولة حالياً">
-                        </div>
-                        <button type="submit" class="btn btn-primary"><i class='bx bx-save'></i> تحديث القسم</button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- 9. View: Emergency -->
-            <div id="view-emergency" class="app-view">
-                <h3 class="mb-4" style="color: var(--color-danger);"><i class='bx bx-first-aid'></i> إدارة الطوارئ
-                    المركزية</h3>
-
-                <div class="box mb-4">
-                    <div class="title">حالة قسم الطوارئ الحالية</div>
-                    <div style="display: flex; gap: 20px; align-items: center;">
-                        <div class="kpi-card" style="width: 100%;">
-                            <div class="right">
-                                <div class="text">أسرة الطوارئ المتاحة حالياً</div>
-                                <div class="number text-success" id="emergency-view-val">0</div>
+                    <!-- Update Departments - Admin Only -->
+                    <div class="box admin-panel admin-only hidden">
+                        <div class="title"><i class='bx bx-bed'></i> إدارة أسرة الأقسام (لإدارة المستشفى)</div>
+                        <form id="dept-form" class="admin-form">
+                            <div class="form-group">
+                                <label>اسم القسم (مثال: العناية المركزة)</label>
+                                <input type="text" id="dept-name" required placeholder="ادخل اسم القسم...">
                             </div>
-                            <i class='bx bx-first-aid icon red'></i>
+                            <div class="form-group">
+                                <label>إجمالي الأسرة</label>
+                                <input type="number" id="dept-total" min="0" required placeholder="العدد الكلي للأسرة">
+                            </div>
+                            <div class="form-group">
+                                <label>الأسرة المشغولة</label>
+                                <input type="number" id="dept-occupied" min="0" required
+                                    placeholder="عدد الأسرة المشغولة حالياً">
+                            </div>
+                            <button type="submit" class="btn btn-primary"><i class='bx bx-save'></i> تحديث
+                                القسم</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 5. View: Emergency -->
+                <div id="view-emergency" class="app-view">
+                    <h3 class="mb-4" style="color: var(--color-danger);"><i class='bx bx-first-aid'></i> إدارة الطوارئ
+                        المركزية</h3>
+
+                    <div class="box mb-4">
+                        <div class="title">حالة قسم الطوارئ الحالية</div>
+                        <div style="display: flex; gap: 20px; align-items: center;">
+                            <div class="kpi-card" style="width: 100%;">
+                                <div class="right">
+                                    <div class="text">أسرة الطوارئ المتاحة حالياً</div>
+                                    <div class="number text-success" id="emergency-view-val">0</div>
+                                </div>
+                                <i class='bx bx-first-aid icon red'></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manage Emergency Beds - Admin Only -->
+                    <div class="box admin-panel admin-only hidden">
+                        <div class="title"><i class='bx bx-edit'></i> تحديث السعة للطوارئ (لإدارة المستشفى)</div>
+                        <form id="emergency-beds-form" class="admin-form">
+                            <div class="form-group">
+                                <label>تحديث أسرة الطوارئ المتاحة الكلية</label>
+                                <input type="number" id="admin-emergency-beds" min="0" required
+                                    placeholder="الرقم الإجمالي للأسرة...">
+                            </div>
+                            <button type="submit" class="btn btn-warning"
+                                style="background: var(--color-warning); color: #fff;"><i class='bx bx-refresh'></i> حفظ
+                                أسرة الطوارئ</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 6. View: Smart Alerts -->
+                <div id="view-smart-alerts" class="app-view">
+                    <h3 class="mb-4 text-warning" style="color: var(--color-warning);"><i class='bx bx-bell'></i>
+                        التنبيهات الذكية اللحظية</h3>
+                    <div class="box">
+                        <div id="smart-alerts-container">
+                            <!-- Alerts dynamically appended -->
+                            <div class="empty-state">لا توجد تنبيهات نشطة حالياً.</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Manage Emergency Beds - Admin Only -->
-                <div class="box admin-panel admin-only hidden">
-                    <div class="title"><i class='bx bx-edit'></i> تحديث السعة للطوارئ (لإدارة المستشفى)</div>
-                    <form id="emergency-beds-form" class="admin-form">
-                        <div class="form-group">
-                            <label>تحديث أسرة الطوارئ المتاحة الكلية</label>
-                            <input type="number" id="admin-emergency-beds" min="0" required
-                                placeholder="الرقم الإجمالي للأسرة...">
+                <!-- 7. View: Analysis -->
+                <div id="view-analysis" class="app-view">
+                    <h3 class="mb-4 text-primary"><i class='bx bx-pie-chart-alt-2'></i> تحليلات ورسوم بيانية</h3>
+                    <div class="box chart-box">
+                        <div class="title">متوسط الإشغال الأسبوعي</div>
+                        <div class="chart-container"
+                            style="position: relative; height: 350px; width: 100%; display: flex; justify-content: center; align-items: center;">
+                            <canvas id="occupancyChart"></canvas>
                         </div>
-                        <button type="submit" class="btn btn-warning"
-                            style="background: var(--color-warning); color: #fff;"><i class='bx bx-refresh'></i> حفظ
-                            أسرة الطوارئ</button>
-                    </form>
+                    </div>
                 </div>
-            </div>
 
-        </div>
-    </section>
+                <!-- 8. View: Prediction -->
+                <div id="view-prediction" class="app-view">
+                    <h3 class="mb-4" style="color: #8b5cf6;"><i class='bx bx-line-chart'></i> التوقعات المستقبلية
+                        (AI-Driven)</h3>
+                    <div class="box stats-box">
+                        <div class="title">مؤشرات التحليل الذكية</div>
+                        <div class="stat-item"
+                            style="padding: 20px; background: rgba(255,255,255,0.02); margin-bottom: 10px; border-radius: 8px;">
+                            <span class="stat-label">يوم الذروة المتوقع:</span>
+                            <span class="stat-value text-danger" id="peak-day"
+                                style="font-size: 20px; font-weight: bold;">-</span>
+                        </div>
+                        <div class="stat-item"
+                            style="padding: 20px; background: rgba(255,255,255,0.02); margin-bottom: 10px; border-radius: 8px;">
+                            <span class="stat-label">أقل أيام الضغط:</span>
+                            <span class="stat-value text-success" id="low-pressure-day"
+                                style="font-size: 20px; font-weight: bold;">-</span>
+                        </div>
+                        <div class="stat-item"
+                            style="padding: 20px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+                            <span class="stat-label">توقع إشغال الغد:</span>
+                            <span class="stat-value text-warning" id="predicted-occupancy"
+                                style="font-size: 24px; font-weight: bold;">-</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </div>
 
     <!-- Overlay Toast Notification -->
     <div id="toast" class="toast hidden"></div>
 
-    <script src="script.js"></script>
+    <!-- Firebase Compat Libraries -->
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
+
+    <script src="script.js?v=3"></script>
 </body>
 
 </html>

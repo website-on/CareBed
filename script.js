@@ -1,36 +1,58 @@
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDy9zDaQ1Nik9HGnvVVkdEbFrtq8jzGXB4",
+  authDomain: "osama-a69ad.firebaseapp.com",
+  databaseURL: "https://osama-a69ad-default-rtdb.firebaseio.com",
+  projectId: "osama-a69ad",
+  storageBucket: "osama-a69ad.firebasestorage.app",
+  messagingSenderId: "786308467957",
+  appId: "1:786308467957:web:cdefbaadc8a8f1d8d589bc"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const auth = firebase.auth();
+
 // Global DB State
-let hospitalsDB = [
-  {
-    id: 'h_test_1',
-    code: '1234',
-    name: 'مستشفى الشفاء المركزي',
-    gov: 'القاهرة',
-    city: 'الزمالك',
-    beds: 15,
-    departments: {
-      'العناية المركزة': { total: 20, occupied: 15 },
-      'الطوارئ': { total: 30, occupied: 28 }
-    },
-    bloodBank: {
-      'A+': { avail: 10, req: 5 },
-      'O+': { avail: 45, req: 0 },
-      'B-': { avail: 2, req: 10 }
-    }
-  },
-  {
-    id: 'h_test_2',
-    code: '5678',
-    name: 'مستشفى السلام الدولي',
-    gov: 'الاسكندرية',
-    city: 'سموحة',
-    beds: 5,
-    departments: {},
-    bloodBank: {}
+let hospitalsDB = [];
+
+// Listen for updates from Realtime DB
+db.ref('hospitals').on('value', (snapshot) => {
+  const data = snapshot.val();
+  if (data) {
+    // convert object to array
+    hospitalsDB = Object.values(data);
+  } else {
+    hospitalsDB = [];
   }
-];
+
+  // Refresh active views if needed
+  if (!document.getElementById('landing-page').classList.contains('hidden')) {
+    doSmartSearch();
+  }
+  if (viewingHospitalId) {
+    // If current logged in user received an update from another session, update currentUser object
+    if (currentUserHospital && currentUserHospital.id === viewingHospitalId) {
+      currentUserHospital = hospitalsDB.find(h => h.id === currentUserHospital.id) || currentUserHospital;
+    }
+    loadHospitalDashboardData(viewingHospitalId);
+  }
+  const searchResultView = document.getElementById('view-find-beds');
+  if (searchResultView && searchResultView.classList.contains('active-view')) {
+    doSmartSearch();
+  }
+});
+
+function saveHospitalToFirebase(hospital) {
+  if (!hospital.departments) hospital.departments = {};
+  if (!hospital.bloodBank) hospital.bloodBank = {};
+  db.ref('hospitals/' + hospital.id).set(hospital);
+}
+
 
 let currentUserHospital = null;
-let viewingHospitalId = null; // Used when a guest clicks on a search result
+let viewingHospitalId = null;
 
 let historicalOccupancyGraph = {
   labels: ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
@@ -45,14 +67,18 @@ const navLinks = document.querySelectorAll('.nav-links li a');
 const views = document.querySelectorAll('.app-view');
 const toastEl = document.getElementById('toast');
 
-// Views and Buttons
-const loginBtnTop = document.getElementById('login-btn-top');
+// Landing vs App
+const landingPage = document.getElementById('landing-page');
+const mainApp = document.getElementById('main-app');
+const headerSearchBar = document.getElementById('header-search-bar');
+const instantHeaderSearch = document.getElementById('instant-header-search');
+
+const btnGuestSearch = document.getElementById('btn-guest-search');
+const btnClearSearch = document.getElementById('btn-clear-search');
 const logoutBtn = document.getElementById('logout-btn');
 const emptyDepts = document.getElementById('empty-depts');
 
-// Modals & Auth UI
-const loginModal = document.getElementById('login-modal');
-const closeLoginModal = document.getElementById('close-login-modal');
+// Auth Views (inside Landing)
 const authSelectionView = document.getElementById('auth-selection-view');
 const authLoginView = document.getElementById('auth-login-view');
 const authRegisterView = document.getElementById('auth-register-view');
@@ -66,8 +92,7 @@ const loginForm = document.getElementById('login-form');
 const registerForm = document.getElementById('register-form');
 const loginError = document.getElementById('login-error');
 
-// Forms & Inputs
-const publicSearchForm = document.getElementById('public-search-form');
+// Forms
 const deptForm = document.getElementById('dept-form');
 const bloodForm = document.getElementById('blood-form');
 
@@ -75,11 +100,62 @@ let myChart = null;
 
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
-  // initial state is guest, empty search
-  renderPublicHospitals('');
+  // Show all hospitals by default in search
+  doSmartSearch();
 });
 
-// --- UI / NAVIGATION LOGIC ---
+// --- MAIN LAYOUT NAVIGATION ---
+function launchApp(role) {
+  landingPage.classList.add('hidden');
+  mainApp.classList.remove('hidden');
+
+  if (role === 'guest') {
+    document.getElementById('logged-hospital-name').innerText = "باحث زائر";
+    document.getElementById('profile-img').src = `https://ui-avatars.com/api/?name=Guest&background=1e293b&color=fff`;
+    document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+    logoutBtn.classList.remove('hidden');
+    headerSearchBar.classList.remove('hidden'); // Show fast search for guest
+    switchToView('find-beds'); // Jump to search directly
+    showToast('تم الدخول كزائر للبحث السريع');
+  } else {
+    document.getElementById('logged-hospital-name').innerText = currentUserHospital.name;
+    document.getElementById('profile-img').src = `https://ui-avatars.com/api/?name=${currentUserHospital.name}&background=0D8ABC&color=fff`;
+    document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+    logoutBtn.classList.remove('hidden');
+    headerSearchBar.classList.add('hidden');
+    switchToView('dashboard');
+    showToast('تم تسجيل الدخول بصلاحيات الإدارة.');
+  }
+}
+
+function exitApp() {
+  currentUserHospital = null;
+  viewingHospitalId = null;
+
+  auth.signOut().catch(() => { });
+
+  // Reset Forms
+  doSmartSearch(); // Reset search to full
+  if (instantHeaderSearch) instantHeaderSearch.value = '';
+
+  mainApp.classList.add('hidden');
+  landingPage.classList.remove('hidden');
+
+  // Reset Auth views
+  authSelectionView.classList.remove('hidden');
+  authLoginView.classList.add('hidden');
+  authRegisterView.classList.add('hidden');
+  loginForm.reset();
+  registerForm.reset();
+}
+
+btnGuestSearch.addEventListener('click', () => {
+  launchApp('guest');
+});
+
+logoutBtn.addEventListener('click', exitApp);
+
+// --- SIDEBAR UI LOGIC ---
 sidebarBtn.addEventListener('click', () => {
   sidebar.classList.toggle('close');
   homeSection.classList.toggle('expanded');
@@ -92,18 +168,16 @@ function switchToView(viewId) {
   });
 
   views.forEach(v => v.classList.remove('active-view'));
-  document.getElementById(`view-${viewId}`).classList.add('active-view');
+  const targetView = document.getElementById(`view-${viewId}`);
+  if (targetView) targetView.classList.add('active-view');
 
   if (viewId === 'analysis') renderChart();
 }
 
 navLinks.forEach(link => {
   link.addEventListener('click', (e) => {
-    if (link.id === 'admin-tab-link') return; // Handled separately
     e.preventDefault();
     switchToView(link.getAttribute('data-view'));
-
-    // Close sidebar on mobile after clicking a link
     if (window.innerWidth <= 768) {
       sidebar.classList.remove('close');
     }
@@ -117,30 +191,7 @@ function showToast(message) {
   setTimeout(() => { toastEl.classList.remove('show'); }, 3000);
 }
 
-// --- LOGIN / REGISTER TABS & MODAL LOGIC ---
-loginBtnTop.addEventListener('click', (e) => {
-  e.preventDefault();
-  if (currentUserHospital) {
-    switchToView('dashboard'); // Directly if logged in
-  } else {
-    // Reset to selection view
-    authSelectionView.classList.remove('hidden');
-    authLoginView.classList.add('hidden');
-    authRegisterView.classList.add('hidden');
-    loginError.classList.add('hidden');
-
-    loginModal.classList.add('active-modal'); // Open auth
-  }
-});
-
-closeLoginModal.addEventListener('click', () => {
-  loginModal.classList.remove('active-modal');
-});
-loginModal.addEventListener('click', (e) => {
-  if (e.target === loginModal) loginModal.classList.remove('active-modal');
-});
-
-// Switch to Login View
+// --- LOGIN / REGISTER LOGIC ---
 btnChoiceLogin.addEventListener('click', () => {
   loginForm.reset();
   authSelectionView.classList.add('hidden');
@@ -149,7 +200,6 @@ btnChoiceLogin.addEventListener('click', () => {
   loginError.classList.add('hidden');
 });
 
-// Switch to Register View
 btnChoiceRegister.addEventListener('click', () => {
   registerForm.reset();
   authSelectionView.classList.add('hidden');
@@ -158,7 +208,6 @@ btnChoiceRegister.addEventListener('click', () => {
   loginError.classList.add('hidden');
 });
 
-// Go Back
 btnBackFromLogin.addEventListener('click', () => {
   loginForm.reset();
   authLoginView.classList.add('hidden');
@@ -171,7 +220,6 @@ btnBackFromRegister.addEventListener('click', () => {
   authSelectionView.classList.remove('hidden');
 });
 
-// Process Login
 loginForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const name = document.getElementById('login-name').value.trim();
@@ -179,145 +227,143 @@ loginForm.addEventListener('submit', (e) => {
   const city = document.getElementById('login-city').value.trim();
   const code = document.getElementById('login-code').value.trim();
 
-  const hospital = hospitalsDB.find(h => h.name === name && h.code === code && h.gov === gov && h.city === city);
+  auth.signInWithEmailAndPassword("osama@admin.com", code)
+    .then(() => {
+      const hospital = hospitalsDB.find(h => h.name === name && h.gov === gov && h.city === city);
 
-  if (hospital) {
-    handleSuccessfulLogin(hospital);
-  } else {
-    loginError.classList.remove('hidden');
-  }
+      if (hospital) {
+        currentUserHospital = hospital;
+        viewingHospitalId = hospital.id;
+        loginError.classList.add('hidden');
+        generateRandomHistoricalData(hospital);
+        loadHospitalDashboardData(hospital.id);
+        launchApp('admin');
+      } else {
+        loginError.innerText = "هذا المستشفى غير مسجل، يرجى مراجعة البيانات.";
+        loginError.classList.remove('hidden');
+        auth.signOut();
+      }
+    })
+    .catch((error) => {
+      loginError.innerText = "كود الإدارة المركزي غير صحيح أو ليس لديك صلاحية.";
+      loginError.classList.remove('hidden');
+    });
 });
 
-// Process Registration
 registerForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const name = document.getElementById('reg-name').value.trim();
   const gov = document.getElementById('reg-gov').value.trim();
   const city = document.getElementById('reg-city').value.trim();
-  const beds = 0; // Starts with 0 beds, to be configured in admin dashboard
+  const beds = 0;
   const code = document.getElementById('reg-code').value.trim();
 
-  if (hospitalsDB.find(h => h.code === code)) {
-    alert("هذا الكود السري مستخدم مسبقاً، اختر كوداً أصعب.");
+  if (hospitalsDB.find(h => h.name === name && h.gov === gov && h.city === city)) {
+    alert("هذا المستشفى مسجل بالفعل بنفس البيانات.");
     return;
   }
 
-  const newHospital = {
-    id: 'h_' + Date.now(),
-    code, name, gov, city, beds,
-    departments: {},
-    bloodBank: {}
-  };
+  auth.signInWithEmailAndPassword("osama@admin.com", code)
+    .then(() => {
+      const newHospital = {
+        id: 'h_' + Date.now(),
+        code, name, gov, city, beds,
+        departments: {},
+        bloodBank: {}
+      };
 
-  hospitalsDB.push(newHospital);
-  handleSuccessfulLogin(newHospital);
-});
+      saveHospitalToFirebase(newHospital);
+      // Also push locally to render immediately
+      hospitalsDB.push(newHospital);
+      currentUserHospital = newHospital;
+      viewingHospitalId = newHospital.id;
 
-function handleSuccessfulLogin(hospital) {
-  currentUserHospital = hospital;
-  viewingHospitalId = hospital.id; // automatically view own
-
-  // Reset views for next time
-  authSelectionView.classList.remove('hidden');
-  authLoginView.classList.add('hidden');
-  authRegisterView.classList.add('hidden');
-
-  loginModal.classList.remove('active-modal');
-  loginError.classList.add('hidden');
-
-  // UI Update
-  document.getElementById('logged-hospital-name').innerText = hospital.name;
-  document.getElementById('profile-img').src = `https://ui-avatars.com/api/?name=${hospital.name}&background=0D8ABC&color=fff`;
-  loginBtnTop.classList.add('hidden');
-  logoutBtn.classList.remove('hidden');
-
-  document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
-  loginForm.reset();
-  registerForm.reset();
-
-  generateRandomHistoricalData(hospital);
-  loadHospitalDashboardData(hospital.id);
-  switchToView('dashboard'); // Take to dashboard automatically upon login
-  showToast('تم تسجيل الدخول بصلاحيات الإدارة.');
-}
-
-// Logical Logout
-logoutBtn.addEventListener('click', () => {
-  currentUserHospital = null;
-  viewingHospitalId = null;
-
-  document.getElementById('logged-hospital-name').innerText = "مستخدم زائر";
-  document.getElementById('profile-img').src = `https://ui-avatars.com/api/?name=Guest&background=1e293b&color=fff`;
-  logoutBtn.classList.add('hidden');
-  loginBtnTop.classList.remove('hidden');
-  document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
-
-  // Explicitly reset the form containers in case of any data
-  document.getElementById('search-results-container').classList.add('hidden');
-  document.getElementById('public-hospital-list').innerHTML = '';
-  document.getElementById('public-search-form').reset();
-
-  // Reset to home view and manage active states natively
-  switchToView('home');
-  renderPublicHospitals('');
-  showToast('تم تسجيل الخروج بنجاح وعودة للرئيسية');
+      generateRandomHistoricalData(newHospital);
+      loadHospitalDashboardData(newHospital.id);
+      launchApp('admin');
+    })
+    .catch((error) => {
+      alert("تعذر تسجيل المستشفى: كود الإدارة المركزي غير صحيح.");
+    });
 });
 
 
-// --- PUBLIC SEARCH ENGINE ---
-publicSearchForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const sName = document.getElementById('search-name').value.toLowerCase().trim();
-  const sGov = document.getElementById('search-gov').value.toLowerCase().trim();
-  const sCity = document.getElementById('search-city').value.toLowerCase().trim();
+// --- SMART INSTANT SEARCH ENGINE ---
+function doSmartSearch() {
+  const searchNameEl = document.getElementById('search-name');
+  const searchGovEl = document.getElementById('search-gov');
+  const searchCityEl = document.getElementById('search-city');
 
-  // Show container
-  document.getElementById('search-results-container').classList.remove('hidden');
+  const sName = searchNameEl ? searchNameEl.value.toLowerCase().trim() : '';
+  const sGov = searchGovEl ? searchGovEl.value.toLowerCase().trim() : '';
+  const sCity = searchCityEl ? searchCityEl.value.toLowerCase().trim() : '';
+
+  const publicList = document.getElementById('public-hospital-list');
+  if (!publicList) return;
 
   let results = hospitalsDB.filter(h => {
     let match = true;
-    if (sName && !h.name.toLowerCase().includes(sName)) match = false;
-    if (sGov && !h.gov.toLowerCase().includes(sGov)) match = false;
-    if (sCity && !h.city.toLowerCase().includes(sCity)) match = false;
+    if (sName && h.name && !h.name.toLowerCase().includes(sName)) match = false;
+    if (sGov && h.gov && !h.gov.toLowerCase().includes(sGov)) match = false;
+    if (sCity && h.city && !h.city.toLowerCase().includes(sCity)) match = false;
     return match;
   });
 
-  const publicList = document.getElementById('public-hospital-list');
   publicList.innerHTML = '';
 
   if (results.length === 0) {
-    publicList.innerHTML = '<div class="empty-state">لا توجد نتائج مطابقة لبحثك. تأكد من البيانات.</div>';
+    publicList.innerHTML = '<div class="empty-state">لا توجد مستشفيات مطابقة للبحث.</div>';
   } else {
     results.forEach(h => {
       const isAvail = h.beds > 0;
       const html = `
-            <div class="hospital-card" onclick="viewPublicHospitalDashboard('${h.id}')" style="cursor: pointer;">
-              <div class="hospital-info">
-                <h4><i class='bx bx-building'></i> ${h.name}</h4>
-                <p><i class='bx bx-map'></i> ${h.gov} - ${h.city}</p>
-              </div>
-              <div class="hospital-action text-left">
-                <div class="avail-beds" style="justify-content:flex-end; gap:10px; color: ${isAvail ? 'var(--color-success)' : 'var(--color-danger)'};">
-                    ${h.beds} <span>أسرة طوارئ متاحة</span>
+              <div class="hospital-card" onclick="viewPublicHospitalDashboard('${h.id}')" style="cursor: pointer; background: var(--bg-primary); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: var(--border-radius-sm); margin-bottom: 10px; transition: 0.3s;">
+                <div class="hospital-info" style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <h4 style="color:var(--color-primary); margin-bottom:5px;"><i class='bx bx-building'></i> ${h.name}</h4>
+                    <p style="color:var(--text-secondary); font-size:14px;"><i class='bx bx-map'></i> ${h.gov} - ${h.city}</p>
+                  </div>
+                  <div class="avail-beds" style="text-align:left; color: ${isAvail ? 'var(--color-success)' : 'var(--color-danger)'}; font-weight:bold;">
+                      ${h.beds || 0} <br><span style="font-size:12px; font-weight:normal;">أسرة طوارئ</span>
+                  </div>
                 </div>
-              </div>
-            </div>`;
+              </div>`;
       publicList.insertAdjacentHTML('beforeend', html);
     });
   }
-});
-
-function renderPublicHospitals(dummyPlaceholder) {
-  // Just reset if needed. It usually triggers empty or full on submit.
 }
 
-// When user clicks a hospital from search results -> Open Dashboard for it
-function viewPublicHospitalDashboard(hId) {
+// Bind live search events
+['search-name', 'search-gov', 'search-city'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', doSmartSearch);
+});
+
+if (btnClearSearch) {
+  btnClearSearch.addEventListener('click', () => {
+    document.getElementById('search-name').value = '';
+    document.getElementById('search-gov').value = '';
+    document.getElementById('search-city').value = '';
+    if (instantHeaderSearch) instantHeaderSearch.value = '';
+    doSmartSearch();
+  });
+}
+
+if (instantHeaderSearch) {
+  instantHeaderSearch.addEventListener('input', (e) => {
+    switchToView('find-beds');
+    document.getElementById('search-name').value = e.target.value;
+    doSmartSearch();
+  });
+}
+
+// Expose globally for inline onclick
+window.viewPublicHospitalDashboard = function (hId) {
   loadHospitalDashboardData(hId);
   switchToView('dashboard');
 }
 
-// --- HOSPITAL DASHBOARD LOGIC (The Analytics view basically) ---
+// --- HOSPITAL DASHBOARD LOGIC ---
 function loadHospitalDashboardData(hId) {
   viewingHospitalId = hId;
   const hospital = hospitalsDB.find(h => h.id === hId);
@@ -325,13 +371,14 @@ function loadHospitalDashboardData(hId) {
 
   document.getElementById('viewing-hospital-title').innerHTML = `<i class='bx bx-building-house'></i> لوحة بيانات: ${hospital.name} <span style="font-size:16px; color:var(--text-secondary);">(${hospital.gov} - ${hospital.city})</span>`;
 
-  // Process KPI
-  let totalBeds = hospital.beds;
+  let totalBeds = hospital.beds || 0;
   let totalOccupied = 0;
-  Object.values(hospital.departments).forEach(dept => {
-    totalBeds += dept.total;
-    totalOccupied += dept.occupied;
-  });
+  if (hospital.departments) {
+    Object.values(hospital.departments).forEach(dept => {
+      totalBeds += (dept.total || 0);
+      totalOccupied += (dept.occupied || 0);
+    });
+  }
   const available = totalBeds - totalOccupied;
   const occupancyRate = totalBeds > 0 ? ((totalOccupied / totalBeds) * 100).toFixed(1) : 0;
 
@@ -342,8 +389,7 @@ function loadHospitalDashboardData(hId) {
     <div class="kpi-card"><div class="right"><div class="text">نسبة الإشغال العام</div><div class="number">${occupancyRate}%</div></div><i class='bx bx-line-chart icon purple'></i></div>
     `;
 
-  // Process Departments
-  const depts = hospital.departments;
+  const depts = hospital.departments || {};
   const deptKeys = Object.keys(depts);
   const dGrid = document.getElementById('departments-grid');
   dGrid.innerHTML = '';
@@ -377,8 +423,7 @@ function loadHospitalDashboardData(hId) {
     });
   }
 
-  // Process Blood Bank
-  const bbs = hospital.bloodBank;
+  const bbs = hospital.bloodBank || {};
   const bKeys = Object.keys(bbs);
   const bList = document.getElementById('blood-bank-list');
   bList.innerHTML = '';
@@ -401,9 +446,8 @@ function loadHospitalDashboardData(hId) {
   }
 
   const emergencyValEl = document.getElementById('emergency-view-val');
-  if (emergencyValEl) emergencyValEl.textContent = hospital.beds;
+  if (emergencyValEl) emergencyValEl.textContent = hospital.beds || 0;
 }
-
 
 // --- ADMIN FORMS ---
 deptForm.addEventListener('submit', (e) => {
@@ -416,10 +460,12 @@ deptForm.addEventListener('submit', (e) => {
 
   if (occupied > total) { alert("الأسرة المشغولة تعلو الكلي!"); return; }
 
+  if (!currentUserHospital.departments) currentUserHospital.departments = {};
   currentUserHospital.departments[name] = { total, occupied };
 
+  saveHospitalToFirebase(currentUserHospital);
   generateRandomHistoricalData(currentUserHospital);
-  loadHospitalDashboardData(currentUserHospital.id); // Reflect instantly
+  loadHospitalDashboardData(currentUserHospital.id);
   showToast(`تم حفظ وتحديث بيانات ${name}`);
   deptForm.reset();
 });
@@ -432,14 +478,15 @@ bloodForm.addEventListener('submit', (e) => {
   const avail = parseInt(document.getElementById('blood-avail').value) || 0;
   const req = parseInt(document.getElementById('blood-requested').value) || 0;
 
+  if (!currentUserHospital.bloodBank) currentUserHospital.bloodBank = {};
   currentUserHospital.bloodBank[type] = { avail, req };
 
-  loadHospitalDashboardData(currentUserHospital.id); // Reflect instantly
+  saveHospitalToFirebase(currentUserHospital);
+  loadHospitalDashboardData(currentUserHospital.id);
   showToast(`تم تحديث مخزون واحتياج فصيلة ${type}`);
   bloodForm.reset();
 });
 
-// Manage Emergency Beds from Admin
 const emergencyBedsForm = document.getElementById('emergency-beds-form');
 if (emergencyBedsForm) {
   emergencyBedsForm.addEventListener('submit', (e) => {
@@ -449,18 +496,21 @@ if (emergencyBedsForm) {
     const bedsCount = parseInt(document.getElementById('admin-emergency-beds').value) || 0;
     currentUserHospital.beds = bedsCount;
 
+    saveHospitalToFirebase(currentUserHospital);
     generateRandomHistoricalData(currentUserHospital);
-    loadHospitalDashboardData(currentUserHospital.id); // Reflect instantly
+    loadHospitalDashboardData(currentUserHospital.id);
     showToast(`تم تحديث إجمالي أسرة الطوارئ إلى ${bedsCount}`);
     emergencyBedsForm.reset();
   });
 }
 
-// Analytics (Fake data gen for demo)
+// Analytics 
 function generateRandomHistoricalData(hospital) {
-  let totalBeds = hospital.beds;
+  let totalBeds = hospital.beds || 0;
   let totalOccupied = 0;
-  Object.values(hospital.departments).forEach(dept => { totalBeds += dept.total; totalOccupied += dept.occupied; });
+  if (hospital.departments) {
+    Object.values(hospital.departments).forEach(dept => { totalBeds += (dept.total || 0); totalOccupied += (dept.occupied || 0); });
+  }
   const currentRate = totalBeds > 0 ? parseInt((totalOccupied / totalBeds) * 100) : 50;
 
   for (let i = 0; i < 7; i++) {
@@ -473,7 +523,7 @@ function generateRandomHistoricalData(hospital) {
 
 function renderChart() {
   const ctx = document.getElementById('occupancyChart');
-  if (!ctx) return;
+  if (!ctx || !window.Chart) return;
   if (myChart) myChart.destroy();
 
   const { labels, data } = historicalOccupancyGraph;
@@ -495,18 +545,18 @@ function renderChart() {
     document.getElementById('predicted-occupancy').textContent = `${avg}%`;
   }
 
-  myChart = new Chart(ctx, {
+  myChart = new window.Chart(ctx, {
     type: 'line',
     data: {
       labels: labels,
       datasets: [{
         label: 'نسبة الإشغال (%)',
         data: data,
-        borderColor: '#3b82f6',
-        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+        borderColor: '#0ea5e9',
+        backgroundColor: 'rgba(14, 165, 233, 0.2)',
         borderWidth: 3,
         pointBackgroundColor: '#fff',
-        pointBorderColor: '#3b82f6',
+        pointBorderColor: '#0ea5e9',
         pointRadius: 5,
         fill: true,
         tension: 0.4
@@ -516,8 +566,8 @@ function renderChart() {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+        y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, border: { dash: [5, 5] }, ticks: { color: '#94a3b8' } },
+        x: { grid: { color: 'rgba(255,255,255,0.05)', display: false }, ticks: { color: '#94a3b8' } }
       },
       plugins: { legend: { display: false } }
     }
