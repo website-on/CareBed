@@ -42,11 +42,9 @@
                 <!-- Quick Search for Guests -->
                 <div class="quick-guest-search mt-5"
                     style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 25px;">
-                    <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 16px;">للمواطنين: ابحث الآن
-                        عن المستشفيات والأسرة المتاحة سريعاً</p>
                     <button class="btn btn-secondary w-50" id="btn-guest-search"
                         style="font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                        <i class='bx bx-search-alt-2' style="font-size: 24px;"></i> الدخول السريع للبحث
+                        <i class='bx bx-search-alt-2' style="font-size: 24px;"></i> البحث عن المستشفيات المتاحة
                     </button>
                 </div>
             </div>
@@ -59,82 +57,117 @@
                     <div class="login-header mt-2">
                         <i class='bx bx-user-circle text-primary'></i>
                         <h2>نظام إدارة المستشفيات</h2>
-                        <p>يرجى تحديد نوع الدخول للمتابعة إلى لوحة التحكم</p>
+                        <p>يرجى تحديد نوع الدخول للمتابعة</p>
                     </div>
                     <div class="auth-choices">
-                        <button type="button" class="btn btn-primary w-100 mb-3" id="btn-choice-login"
+                        <button type="button" class="btn btn-primary w-100 mb-3" id="btn-choice-gmail-register"
                             style="padding: 20px; font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                            <i class='bx bx-log-in-circle' style="font-size: 24px;"></i> تسجيل مستشفى مسجل
+                            <i class='bx bx-plus-circle' style="font-size: 24px;"></i> تسجيل جديد
                         </button>
-                        <button type="button" class="btn btn-success w-100" id="btn-choice-register"
+                        <button type="button" class="btn btn-success w-100 mb-3" id="btn-choice-code-login"
                             style="padding: 20px; font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                            <i class='bx bx-plus-circle' style="font-size: 24px;"></i> تسجيل مستشفى جديد
+                            <i class='bx bx-log-in-circle' style="font-size: 24px;"></i> حساب مسجل
+                        </button>
+                        <button type="button" class="btn btn-warning w-100" id="btn-choice-super-admin"
+                            style="background: #f59e0b; color: white; border: none; padding: 20px; font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                            <i class='bx bx-shield-quarter' style="font-size: 24px;"></i> وضع الأدمن
                         </button>
                     </div>
                 </div>
 
-                <!-- Login Form -->
-                <div id="auth-login-view" class="hidden">
-                    <div class="back-btn" id="btn-back-from-login"><i class='bx bx-right-arrow-alt'></i> رجوع</div>
-                    <div class="login-header mt-2">
-                        <i class='bx bx-log-in-circle text-primary'></i>
-                        <h2 id="auth-title">دخول مستشفى سابق</h2>
-                        <p id="auth-subtitle">أدخل بيانات العيادة للتحكم بالأنظمة</p>
+                <!-- Super Admin Login Form -->
+                <div id="auth-super-admin-view" class="hidden">
+                    <div class="back-btn" id="btn-back-from-super-admin"><i class='bx bx-right-arrow-alt'></i> رجوع
                     </div>
-
-                    <form id="login-form">
+                    <div class="login-header mt-2">
+                        <i class='bx bx-shield text-warning'></i>
+                        <h2>دخول الإدارة</h2>
+                        <p>أدخل الكود السري الخاص بإدارة المنظومة</p>
+                    </div>
+                    <form id="super-admin-form">
                         <div class="form-group">
-                            <label>اسم المؤسسة</label>
-                            <input type="text" id="login-name" required placeholder="مثال: مستشفى النور">
+                            <label>كود الأدمن</label>
+                            <input type="password" id="login-super-admin-code" required placeholder="الكود السري...">
                         </div>
-                        <div class="form-group-row">
-                            <div class="form-group w-50 pe-2">
-                                <label>المحافظة</label>
-                                <input type="text" id="login-gov" required placeholder="المحافظة">
-                            </div>
-                            <div class="form-group w-50 ps-2">
-                                <label>المدينة</label>
-                                <input type="text" id="login-city" required placeholder="المدينة">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>الكود السري</label>
-                            <input type="password" id="login-code" required placeholder="كود الدخول">
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">تسجيل الدخول</button>
-                        <div id="login-error" class="text-danger mt-3 text-center hidden">بيانات الدخول غير صحيحة.</div>
+                        <button type="submit" class="btn btn-warning w-100"
+                            style="background: #f59e0b; color: #fff;">دخول النظام</button>
+                        <div id="super-admin-error" class="text-danger mt-3 text-center hidden">الكود غير صحيح.</div>
                     </form>
                 </div>
 
-                <!-- Register Form -->
-                <div id="auth-register-view" class="hidden">
-                    <div class="back-btn" id="btn-back-from-register"><i class='bx bx-right-arrow-alt'></i> رجوع</div>
+                <!-- Patient Search View -->
+                <div id="auth-guest-search-view" class="hidden">
+                    <div class="back-btn" id="btn-back-from-search"><i class='bx bx-right-arrow-alt'></i> رجوع</div>
                     <div class="login-header mt-2">
-                        <i class='bx bx-plus-circle text-success'></i>
-                        <h2>تسجيل مستشفى جديد</h2>
-                        <p>انضم للشبكة الوطنية في خطوة واحدة</p>
+                        <i class='bx bx-search-alt-2 text-info'></i>
+                        <h2>البحث الفوري للمستشفيات</h2>
+                        <p>تصفح الأسرة وحالة المستشفيات المتاحة</p>
                     </div>
-                    <form id="register-form">
+                    <div class="search-form-grid" style="grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px;">
+                        <input type="text" id="landing-search-name" placeholder="ابحث باسم المستشفى...">
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="landing-search-gov" placeholder="المحافظة" style="width: 50%;">
+                            <input type="text" id="landing-search-city" placeholder="المدينة" style="width: 50%;">
+                        </div>
+                    </div>
+                    <div id="landing-search-results" style="max-height: 250px; overflow-y: auto; padding-right: 5px;">
+                        <!-- Results injected via JS -->
+                        <div class="empty-state" style="padding: 10px;">قم بالبحث لعرض المستشفيات هنا...</div>
+                    </div>
+                </div>
+
+                <!-- Code Login Form -->
+                <div id="auth-code-login-view" class="hidden">
+                    <div class="back-btn" id="btn-back-from-code"><i class='bx bx-right-arrow-alt'></i> رجوع</div>
+                    <div class="login-header mt-2">
+                        <i class='bx bx-key text-success'></i>
+                        <h2>دخول حساب مسجل</h2>
+                        <p>أدخل الكود السري المكون من 5 أرقام للوصول المباشر للوحة التحكم</p>
+                    </div>
+                    <form id="code-login-form">
                         <div class="form-group">
-                            <label>اسم المؤسسة الجديدة</label>
-                            <input type="text" id="reg-name" required placeholder="مثال: مستشفى السلام التخصصي">
+                            <label>الكود السري</label>
+                            <input type="password" id="login-code-only" required placeholder="مثال: 12345">
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">تسجيل الدخول</button>
+                        <div id="code-login-error" class="text-danger mt-3 text-center hidden">الكود غير صحيح.</div>
+                    </form>
+                </div>
+
+                <!-- Gmail Register Form -->
+                <div id="auth-gmail-register-view" class="hidden">
+                    <div class="back-btn" id="btn-back-from-gmail"><i class='bx bx-right-arrow-alt'></i> رجوع</div>
+                    <div class="login-header mt-2">
+                        <i class='bx bxl-google text-primary'></i>
+                        <h2>تسجيل مستشفى جديد</h2>
+                        <p>اربط المستشفى بحساب جوجل للموافقة من الإدارة</p>
+                    </div>
+                    <div id="gmail-auth-step">
+                        <button type="button" id="btn-google-auth" class="btn btn-primary w-100"
+                            style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 15px;">
+                            <i class='bx bxl-google'></i> تسجيل الدخول بحساب جوجل
+                        </button>
+                    </div>
+                    <form id="gmail-details-form" class="hidden">
+                        <div class="form-group">
+                            <label>اسم المؤسسة</label>
+                            <input type="text" id="reg-gmail-name" required placeholder="مثال: مستشفى النور">
                         </div>
                         <div class="form-group-row">
                             <div class="form-group w-50 pe-2">
                                 <label>المحافظة</label>
-                                <input type="text" id="reg-gov" required placeholder="المحافظة...">
+                                <input type="text" id="reg-gmail-gov" required placeholder="المحافظة...">
                             </div>
                             <div class="form-group w-50 ps-2">
                                 <label>المدينة</label>
-                                <input type="text" id="reg-city" required placeholder="المدينة...">
+                                <input type="text" id="reg-gmail-city" required placeholder="المدينة...">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>تعيين كود الدخول السري</label>
-                            <input type="password" id="reg-code" required
-                                placeholder="يجب حفظه لعمليات الدخول المستقبلية">
+                            <label>رقم التواصل</label>
+                            <input type="text" id="reg-gmail-phone" required placeholder="رقم الهاتف للتواصل">
                         </div>
-                        <button type="submit" class="btn btn-success w-100">تسجيل اعتماد المستشفى</button>
+                        <button type="submit" class="btn btn-primary w-100">إرسال طلب للإدارة</button>
                     </form>
                 </div>
             </div>
@@ -219,9 +252,32 @@
                             style="width: 100%; padding: 10px 45px 10px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; outline:none;">
                     </div>
                 </div>
-                <div class="profile-details">
-                    <img src="https://ui-avatars.com/api/?name=Guest&background=1e293b&color=fff" id="profile-img"
-                        alt="profileImg">
+                <div class="profile-details" style="position: relative;">
+                    <div class="notifications-bell" style="position: relative; margin-left: 20px; cursor: pointer;"
+                        id="notif-bell-btn">
+                        <i class='bx bx-bell' id="notif-icon" style="font-size: 26px; color: var(--text-primary);"></i>
+                        <span id="notif-badge" class="badge"
+                            style="position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 11px; display: none;">0</span>
+
+                        <!-- Notifications Dropdown -->
+                        <div id="notif-dropdown" class="hidden box"
+                            style="position: absolute; top: 40px; left: -100px; width: 320px; background: var(--bg-secondary); z-index: 100; border: var(--glass-border); max-height: 400px; overflow-y: auto; padding: 15px; box-shadow: var(--card-shadow);">
+                            <h4
+                                style="margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+                                الإشعارات</h4>
+                            <div id="notif-list">
+                                <div class="empty-state" style="padding: 10px;">لا توجد إشعارات.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Image Upload overlay -->
+                    <div style="position: relative; display: inline-block;">
+                        <img src="https://ui-avatars.com/api/?name=Guest&background=1e293b&color=fff" id="profile-img"
+                            alt="profileImg" style="cursor: pointer;">
+                        <input type="file" id="profile-upload" accept="image/*" class="hidden">
+                    </div>
+
                     <span class="admin_name" id="logged-hospital-name">مستخدم زائر</span>
                     <i class='bx bx-log-out hidden' id="logout-btn"
                         style="cursor: pointer; font-size: 24px; margin-right: 15px; color: var(--color-danger);"
@@ -230,6 +286,50 @@
             </nav>
 
             <div class="home-content">
+
+                <!-- Access Restricted Overlay -->
+                <div id="access-locked-overlay" class="hidden"
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 24, 0.9); z-index: 50; display: flex; align-items: center; justify-content: center; flex-direction: column; backdrop-filter: blur(5px);">
+                    <i class='bx bx-lock-alt'
+                        style="font-size: 60px; color: var(--color-warning); margin-bottom: 20px;"></i>
+                    <h2 style="color: #fff; margin-bottom: 10px;">الصفحة الداخلية مقفلة</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">يرجى إدخال الكود السري (من الإشعارات)
+                        للوصول إلى التعديلات وإضافة الأسرة.</p>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="password" id="unlock-code-input" placeholder="أدخل الكود السري..."
+                            style="padding: 10px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff;">
+                        <button id="btn-unlock-internal" class="btn btn-warning"
+                            style="background: var(--color-warning); color: #fff;">فتح القفل</button>
+                    </div>
+                    <div id="unlock-error" class="hidden" style="color: var(--color-danger); margin-top: 10px;">الكود
+                        غير صحيح</div>
+                </div>
+
+                <!-- Super Admin View -->
+                <div id="view-super-admin" class="app-view" style="width: 100%;">
+                    <h3 class="mb-4 text-warning"><i class='bx bx-shield-quarter'></i> لوحة المطور (المشرف العام)</h3>
+                    <div class="super-admin-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+                        <!-- Pending -->
+                        <div class="box">
+                            <div class="title" style="color: var(--color-warning);"><i class='bx bx-time-five'></i>
+                                طلبات الاشتراك الجديدة</div>
+                            <div id="pending-hospitals-list" class="mt-3">
+                                <div class="empty-state">لا يوجد طلبات حالية.</div>
+                            </div>
+                        </div>
+
+                        <!-- Approved -->
+                        <div class="box">
+                            <div class="title" style="color: var(--color-success);"><i class='bx bx-check-shield'></i>
+                                المستشفيات المتعاقد معها</div>
+                            <div id="approved-hospitals-list" class="mt-3">
+                                <div class="empty-state">لا توجد مستشفيات بعد.</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
 
                 <!-- 1. View: Dashboard -->
                 <div id="view-dashboard" class="app-view active-view">
@@ -452,12 +552,19 @@
     <!-- Overlay Toast Notification -->
     <div id="toast" class="toast hidden"></div>
 
+    <!-- WhatsApp Support Icon -->
+    <a href="https://wa.me/123456789" target="_blank" class="whatsapp-support"
+        style="position: fixed; bottom: 20px; left: 20px; background: #25D366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; text-decoration: none; transition: transform 0.3s;">
+        <i class='bx bxl-whatsapp'></i>
+    </a>
+
     <!-- Firebase Compat Libraries -->
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-storage-compat.js"></script>
 
-    <script src="script.js?v=3"></script>
+    <script src="script.js?v=4"></script>
 </body>
 
 </html>
