@@ -1,54 +1,29 @@
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDy9zDaQ1Nik9HGnvVVkdEbFrtq8jzGXB4",
-  authDomain: "osama-a69ad.firebaseapp.com",
-  databaseURL: "https://osama-a69ad-default-rtdb.firebaseio.com",
-  projectId: "osama-a69ad",
-  storageBucket: "osama-a69ad.firebasestorage.app",
-  messagingSenderId: "786308467957",
-  appId: "1:786308467957:web:cdefbaadc8a8f1d8d589bc"
+// Removed Firebase configuration and initialization locally for the prototype
+const auth = {
+  signInWithPopup: () => Promise.resolve(),
+  signOut: () => Promise.resolve()
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const auth = firebase.auth();
+const db = {
+  ref: () => ({
+    set: () => Promise.resolve(),
+    on: () => { }
+  })
+};
 
 // Global DB State
 let hospitalsDB = [];
 
-// Listen for updates from Realtime DB
-db.ref('hospitals').on('value', (snapshot) => {
-  const data = snapshot.val();
-  if (data) {
-    // convert object to array
-    hospitalsDB = Object.values(data);
-  } else {
-    hospitalsDB = [];
-  }
-
-  // Refresh active views if needed
-  if (!document.getElementById('landing-page').classList.contains('hidden')) {
-    doSmartSearch();
-  }
-  if (viewingHospitalId) {
-    // If current logged in user received an update from another session, update currentUser object
-    if (currentUserHospital && currentUserHospital.id === viewingHospitalId) {
-      currentUserHospital = hospitalsDB.find(h => h.id === currentUserHospital.id) || currentUserHospital;
-    }
-    loadHospitalDashboardData(viewingHospitalId);
-  }
-  const searchResultView = document.getElementById('view-find-beds');
-  if (searchResultView && searchResultView.classList.contains('active-view')) {
-    doSmartSearch();
-  }
-});
-
 function saveHospitalToFirebase(hospital) {
   if (!hospital.departments) hospital.departments = {};
   if (!hospital.bloodBank) hospital.bloodBank = {};
-  db.ref('hospitals/' + hospital.id).set(hospital);
+
+  const idx = hospitalsDB.findIndex(h => h.id === hospital.id);
+  if (idx >= 0) hospitalsDB[idx] = hospital;
+  else hospitalsDB.push(hospital);
 }
+
+
 
 
 let currentUserHospital = null;
@@ -399,7 +374,7 @@ gmailDetailsForm.addEventListener('submit', (e) => {
   const msg = `تم استلام بيانات ${name}. جاري المراجعة من الإدارة لتوليد الكود السري.`;
   newHospital.notifications = [{ id: Date.now(), msg, date: new Date().toLocaleString() }];
 
-  db.ref('hospitals/' + newHospital.id).set(newHospital);
+  saveHospitalToFirebase(newHospital); // Use our local-only function instead of direct db.ref
 
   currentUserHospital = newHospital;
   viewingHospitalId = newHospital.id;
@@ -413,7 +388,28 @@ codeLoginForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const code = document.getElementById('login-code-only').value.trim();
 
-  const hospital = hospitalsDB.find(h => h.code === code);
+  let hospital = hospitalsDB.find(h => h.code === code);
+
+  if (!hospital && code.length === 5) {
+    // Create a temporary mock hospital mapped to this code
+    hospital = {
+      id: 'mock_' + code,
+      name: 'مستشفى مؤقت (' + code + ')',
+      gov: 'محافظة مؤقتة',
+      city: 'مدينة مؤقتة',
+      phone: '000',
+      beds: 50,
+      departments: {
+        'الطوارئ': { total: 20, occupied: 5 }
+      },
+      bloodBank: {},
+      notifications: [],
+      profileImg: null,
+      code: code
+    };
+    saveHospitalToFirebase(hospital);
+  }
+
   if (hospital) {
     currentUserHospital = hospital;
     viewingHospitalId = hospital.id;
