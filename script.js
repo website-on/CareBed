@@ -448,23 +448,15 @@ superAdminForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const code = document.getElementById('login-super-admin-code').value.trim();
 
-  db.ref('adminConfig/code').once('value').then(snapshot => {
-    let dbCode = snapshot.val();
-    if (!dbCode) {
-      dbCode = '12345';
-      db.ref('adminConfig/code').set(dbCode);
-    }
-
-    if (code === dbCode) {
+  firebase.auth().signInWithEmailAndPassword("osama@admin.com", code)
+    .then((userCredential) => {
       document.getElementById('super-admin-error').classList.add('hidden');
       launchApp('super-admin');
-    } else {
+    })
+    .catch((error) => {
+      console.error("Firebase auth error: ", error);
       document.getElementById('super-admin-error').classList.remove('hidden');
-    }
-  }).catch(err => {
-    console.error("Firebase error: ", err);
-    document.getElementById('super-admin-error').classList.remove('hidden');
-  });
+    });
 });
 
 // Access Overlay Input
