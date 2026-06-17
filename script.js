@@ -455,6 +455,8 @@ superAdminForm.addEventListener('submit', (e) => {
     })
     .catch((error) => {
       console.error("Firebase auth error: ", error);
+      const errorMsg = error.message;
+      document.getElementById('super-admin-error').innerText = "حدث خطأ: " + errorMsg;
       document.getElementById('super-admin-error').classList.remove('hidden');
     });
 });
