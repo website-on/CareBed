@@ -448,7 +448,7 @@ superAdminForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const code = document.getElementById('login-super-admin-code').value.trim();
 
-  firebase.auth().signInWithEmailAndPassword("osama@admin.com", code)
+  firebase.auth().signInWithEmailAndPassword("osama@gmail.com", code)
     .then((userCredential) => {
       document.getElementById('super-admin-error').classList.add('hidden');
       launchApp('super-admin');
