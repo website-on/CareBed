@@ -553,13 +553,26 @@
     <div id="toast" class="toast hidden"></div>
 
     <!-- WhatsApp Support Icon -->
-    <a href="https://wa.me/123456789" target="_blank" class="whatsapp-support"
+    <a href="https://wa.me/01270768687" target="_blank" class="whatsapp-support"
         style="position: fixed; bottom: 20px; left: 20px; background: #25D366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; text-decoration: none; transition: transform 0.3s;">
         <i class='bx bxl-whatsapp'></i>
     </a>
 
-    <!-- Firebase Compat Libraries Disabled -->
-
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDOgN6fP1TCx4LkdL5OQ5SrZCQnpflgJYY",
+            authDomain: "osama-caa71.firebaseapp.com",
+            projectId: "osama-caa71",
+            storageBucket: "osama-caa71.firebasestorage.app",
+            messagingSenderId: "861583646458",
+            appId: "1:861583646458:web:149502e38e7767b624b343"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
     <script src="script.js?v=4"></script>
 </body>
 

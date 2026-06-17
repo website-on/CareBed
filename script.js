@@ -1,18 +1,37 @@
-// Removed Firebase configuration and initialization locally for the prototype
-const auth = {
-  signInWithPopup: () => Promise.resolve(),
-  signOut: () => Promise.resolve()
-};
-
-const db = {
-  ref: () => ({
-    set: () => Promise.resolve(),
-    on: () => { }
-  })
-};
+const auth = firebase.auth();
+const db = firebase.database();
 
 // Global DB State
 let hospitalsDB = [];
+
+// Listen for real-time updates
+db.ref('hospitals').on('value', (snapshot) => {
+  const data = snapshot.val();
+  if (data) {
+    hospitalsDB = Object.values(data);
+  } else {
+    hospitalsDB = [];
+  }
+
+  // Refresh UI
+  if (typeof doSmartSearch === 'function') doSmartSearch();
+  if (typeof doLandingSmartSearch === 'function' && document.getElementById('auth-guest-search-view') && !document.getElementById('auth-guest-search-view').classList.contains('hidden')) {
+    doLandingSmartSearch();
+  }
+  if (typeof userRole !== 'undefined') {
+    if (userRole === 'super-admin') {
+      if (typeof renderPendingHospitals === 'function') renderPendingHospitals();
+      if (typeof renderApprovedHospitals === 'function') renderApprovedHospitals();
+    } else if (typeof currentUserHospital !== 'undefined' && currentUserHospital && typeof viewingHospitalId !== 'undefined' && viewingHospitalId) {
+      const updatedUser = hospitalsDB.find(h => h.id === currentUserHospital.id);
+      if (updatedUser) {
+        currentUserHospital = updatedUser;
+        if (typeof updateNotificationsUI === 'function') updateNotificationsUI();
+      }
+      if (typeof loadHospitalDashboardData === 'function') loadHospitalDashboardData(viewingHospitalId);
+    }
+  }
+});
 
 function saveHospitalToFirebase(hospital) {
   if (!hospital.departments) hospital.departments = {};
@@ -21,6 +40,11 @@ function saveHospitalToFirebase(hospital) {
   const idx = hospitalsDB.findIndex(h => h.id === hospital.id);
   if (idx >= 0) hospitalsDB[idx] = hospital;
   else hospitalsDB.push(hospital);
+
+  // Sync to Firebase
+  db.ref('hospitals/' + hospital.id).set(hospital).catch(err => {
+    console.error("Firebase sync error:", err);
+  });
 }
 
 
@@ -354,9 +378,7 @@ btnGoogleAuth.addEventListener('click', () => {
     gmailAuthStep.classList.add('hidden');
     gmailDetailsForm.classList.remove('hidden');
   }).catch((error) => {
-    // Fallback or mock
-    gmailAuthStep.classList.add('hidden');
-    gmailDetailsForm.classList.remove('hidden');
+    if (typeof showToast === 'function') showToast('فشل التسجيل بحساب جوجل: ' + error.message);
   });
 });
 
