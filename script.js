@@ -448,17 +448,17 @@ superAdminForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const code = document.getElementById('login-super-admin-code').value.trim();
 
-  firebase.auth().signInWithEmailAndPassword("osama@gmail.com", code)
-    .then((userCredential) => {
-      document.getElementById('super-admin-error').classList.add('hidden');
-      launchApp('super-admin');
-    })
-    .catch((error) => {
-      console.error("Firebase auth error: ", error);
-      const errorMsg = error.message;
-      document.getElementById('super-admin-error').innerText = "حدث خطأ: " + errorMsg;
-      document.getElementById('super-admin-error').classList.remove('hidden');
-    });
+  // التحقق من كود الأدمن من خلال الواجهة الأمامية دون الرجوع إلى Firebase Auth
+  // يمكن تغيير هذا الكود إلى أي كود سري آخر
+  const ADMIN_SECRET_CODE = "123456";
+
+  if (code === ADMIN_SECRET_CODE) {
+    document.getElementById('super-admin-error').classList.add('hidden');
+    launchApp('super-admin');
+  } else {
+    document.getElementById('super-admin-error').innerText = "الكود غير صحيح.";
+    document.getElementById('super-admin-error').classList.remove('hidden');
+  }
 });
 
 // Access Overlay Input
